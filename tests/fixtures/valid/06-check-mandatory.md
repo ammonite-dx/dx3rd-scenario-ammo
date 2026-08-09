@@ -3,9 +3,13 @@ id: V-06
 lang: ja
 ---
 
-# 判定（必須） {.scene-title}
+# 判定（必須）
 
-:::check{title="衝動判定" skill="〈意志〉" difficulty=8 mandatory=true}
+:::check 衝動判定
+
+[技能] 〈意志〉
+[難易度] 8
+[必須]
 
 失敗した場合、暴走を受ける。
 :::

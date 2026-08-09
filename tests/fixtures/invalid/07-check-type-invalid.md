@@ -3,9 +3,12 @@ id: I-07
 lang: ja
 ---
 
-# check属性型不正 {.scene-title}
+# check難易度書式不正
 
-:::check{title="判定" skill="〈意志〉" difficulty="8"}
+:::check 書式不正
 
-difficultyが文字列です。
+[技能] 〈意志〉
+[難易度] 8 ★
+
+difficultyの書式が不正です。
 :::

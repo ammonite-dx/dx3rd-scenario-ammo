@@ -3,9 +3,9 @@ id: I-04
 lang: ja
 ---
 
-# title不足 {.scene-title}
+# タイトル不足
 
-:::dialogue{}
+:::dialogue
 
 話者が指定されていません。
 :::

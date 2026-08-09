@@ -4,7 +4,7 @@ kicker: 標準Markdown
 lang: ja
 ---
 
-# 標準Markdown {.scene-title}
+# 標準Markdown
 
 ## Notes
 

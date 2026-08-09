@@ -3,7 +3,7 @@ id: I-15
 lang: ja
 ---
 
-# raw HTML {.scene-title}
+# raw HTML
 
 <div class="scenario-block">
 HTML断片を本文に置いています。

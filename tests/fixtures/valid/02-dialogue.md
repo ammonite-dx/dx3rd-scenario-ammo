@@ -3,9 +3,9 @@ id: V-02
 lang: ja
 ---
 
-# 台詞 {.scene-title}
+# 台詞
 
-:::dialogue{title="案内役"}
+:::dialogue 案内役
 
 「ここから先は静かに進んでください。」
 :::

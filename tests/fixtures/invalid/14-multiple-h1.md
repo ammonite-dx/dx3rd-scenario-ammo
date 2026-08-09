@@ -3,8 +3,8 @@ id: I-14
 lang: ja
 ---
 
-# 最初の章 {.scene-title}
+# 最初の章
 
-# 二つ目のH1 {.scene-title}
+# 二つ目のH1
 
 H1が複数あります。

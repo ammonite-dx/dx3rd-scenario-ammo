@@ -2,6 +2,6 @@
 lang: ja
 ---
 
-# id不足 {.scene-title}
+# id不足
 
 本文。

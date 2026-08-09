@@ -3,6 +3,6 @@ id: I-03
 lang: ja
 ---
 
-# 余分な終端 {.scene-title}
+# 余分な終端
 
 :::

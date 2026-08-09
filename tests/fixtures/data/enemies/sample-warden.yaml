@@ -1,0 +1,88 @@
+schema: "dx3rd-scenario/enemy"
+version: 1
+enemy:
+  id: "sample-warden"
+  name: "灰庭の番人"
+  aliases:
+    - "番人"
+  syndromes:
+    - "キュマイラ"
+  encroachment:
+    rate: 110
+    level_bonus: 1
+    dice_bonus: 2
+  impulse: "破壊"
+  abilities:
+    primary:
+      - id: "body"
+        name: "肉体"
+        value: 5
+      - id: "sense"
+        name: "感覚"
+        value: 2
+      - id: "mind"
+        name: "精神"
+        value: 2
+      - id: "social"
+        name: "社会"
+        value: 1
+    secondary:
+      - id: "hp-max"
+        name: "HP最大値"
+        value: 40
+      - id: "action"
+        name: "行動値"
+        value: 7
+    skills:
+      - id: "melee"
+        name: "白兵"
+        ability_id: "body"
+        value: 4
+      - id: "dodge"
+        name: "回避"
+        ability_id: "body"
+        value: 1
+      - id: "perception"
+        name: "知覚"
+        ability_id: "sense"
+        value: 1
+  effects:
+    - id: "beast-claw"
+      name: "獣爪"
+      group: "キュマイラ"
+      level: 2
+    - id: "concentrate-beast"
+      name: "コンセントレイト：キュマイラ"
+      group: "キュマイラ"
+      level: 2
+  items:
+    - id: "iron-gauntlet"
+      name: "鉄甲"
+      category: "防具"
+      guard: 3
+      armor: 2
+  lois: []
+  d_lois: []
+  e_lois:
+    - id: "sealed-hunger"
+      name: "飢えの刻印"
+      count: 1
+      description: "戦闘中の衝動を示すEロイス。"
+  combos:
+    - id: "iron-claw"
+      name: "鉄爪の一撃"
+      effects:
+        - effect_id: "beast-claw"
+          level: 2
+        - effect_id: "concentrate-beast"
+          level: 2
+      item_ids:
+        - "iron-gauntlet"
+      timing: "メジャーアクション"
+      target: "単体"
+      range: "至近"
+      check: "8dx8+4"
+      attack_type: "白兵"
+      attack_power: 9
+      uses: "制限なし"
+      description: "鉄甲を使った白兵攻撃。"

@@ -3,9 +3,11 @@ id: V-03
 lang: ja
 ---
 
-# 自由演技 {.scene-title}
+# 自由演技
 
-:::roleplay{title="廃駅のホーム"}
+:::roleplay 廃駅のホーム
 
 プレイヤーは、遠くに見える灯りについて自由に演技する。
+
+[対象] PC①、PC②
 :::

@@ -3,9 +3,9 @@ id: I-01
 lang: ja
 ---
 
-# 未知ブロック {.scene-title}
+# 未知ブロック
 
-:::mystery{title="未知"}
+:::mystery 未知
 
 本文。
 :::

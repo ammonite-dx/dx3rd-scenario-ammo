@@ -3,8 +3,8 @@ id: I-02
 lang: ja
 ---
 
-# 閉じ忘れ {.scene-title}
+# 閉じ忘れ
 
-:::dialogue{title="案内役"}
+:::dialogue 案内役
 
 終了記号がありません。

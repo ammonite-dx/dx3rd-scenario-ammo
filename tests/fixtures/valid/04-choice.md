@@ -3,9 +3,9 @@ id: V-04
 lang: ja
 ---
 
-# 選択 {.scene-title}
+# 選択肢（リストあり）
 
-:::choice{title="進む方向"}
+:::choice 進む方向
 
 どちらの道を進むか選ぶ。
 
