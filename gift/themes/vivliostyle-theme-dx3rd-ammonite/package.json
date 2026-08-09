@@ -1,0 +1,49 @@
+{
+  "name": "vivliostyle-theme-dx3rd-ammonite",
+  "description": "DX3rd theme for Vivliostyle",
+  "version": "0.1.0",
+  "author": "アンモナイト <ammonitedx@gmail.com>",
+  "scripts": {
+    "validate": "vivliostyle-theme-scripts validate"
+  },
+  "devDependencies": {
+    "@types/less": "^3.0.2",
+    "autoprefixer": "^10.2.1",
+    "less": "^4.0.0",
+    "postcss": "^8.2.4",
+    "postcss-discard-unused": "^5.0.0",
+    "vivliostyle-theme-scripts": "^0.3.1"
+  },
+  "files": [
+    "*.css",
+    "*.css.map",
+    "scss",
+    "example"
+  ],
+  "keywords": [
+    "vivliostyle",
+    "vivliostyle-theme"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/ammonite-dx/vivliostyle-theme-dx3rd-ammonite",
+  "repository": "github:ammonite-dx/vivliostyle-theme-dx3rd-ammonite",
+  "bugs": "https://github.com/ammonite-dx/vivliostyle-theme-dx3rd-ammonite/issues",
+  "vivliostyle": {
+    "theme": {
+      "name": "Vivliostyle Theme DX3rd Ammonite",
+      "author": "アンモナイト <ammonitedx@gmail.com>",
+      "style": "./theme.css",
+      "main": "./theme.css",
+      "category": "misc",
+      "keywords": [
+        "vivliostyle-theme"
+      ],
+      "topics": [
+        "trpg",
+        "game",
+        "dx3rd"
+      ]
+    }
+  },
+  "dependencies": {}
+}

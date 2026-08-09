@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "vivliostyle-theme-dx3rd-ammonite": "file:../../themes/vivliostyle-theme-dx3rd-ammonite"
+  }
+}

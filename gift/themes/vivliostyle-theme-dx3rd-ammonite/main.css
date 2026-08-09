@@ -1,0 +1,370 @@
+@charset "UTF-8";
+
+/* フォントの読み込み・設定 */
+@import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP&family=Noto+Serif+JP:wght@200..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,100..700,1,-50..200&icon_names=arrow_split,casino,search,sms,swords,visibility,voice_selection');
+
+/* 文書全体の設定 */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* サイズの基準をボーダーに設定 */
+}
+
+/* ページの設定 */
+@page {
+    size: A5; /* A5サイズ */
+    margin-block: 14mm;
+    margin-inline: 14mm;
+    background-color: #fff;
+    @bottom-center {
+        content: counter(page);
+        block-size: 16Q;
+        margin-block-start: 4mm;
+    }
+}
+@page :right {
+    @right-middle {
+        content: string(section-id);
+        writing-mode: vertical-rl;
+        text-orientation: sideways;
+        vertical-align: top;
+    }
+}
+
+/* デフォルト設定 */
+:root {
+    font-size: 16Q;
+    line-height: 28Q;
+    font-family: 'Noto Sans JP';
+    font-weight: 400;
+    text-spacing: allow-end;
+    hanging-punctuation: allow-end;
+    text-align: justify;
+    widows: 1;
+    orphans: 1;
+}
+p {
+    text-indent: 1em;
+    margin-block: 0;
+}
+p.no-indent {
+    text-indent: 0;
+}
+
+/* 見出しの設定 */
+h2 {
+    font-size: 18Q;
+    line-height: 24Q;
+    font-weight: 700;
+    margin-block: 20Q 6Q;
+    margin-break: auto;
+    border-block-end: 3px dotted #000;
+}
+h3, h4 {
+    font-size: 16Q;
+    line-height: 20Q;
+    font-weight: 700;
+    margin-block: 16Q 4Q;
+}
+h3::before {
+    content: "▼ ";
+}
+
+h5::before {
+    content: "● ";
+}
+
+/* セクションタイトルの設定 */
+.section-title {
+    string-set: section-id attr(data-section-id);
+    break-before: page;
+    color: #fff;
+    inline-size: 120mm;
+    block-size: 25mm;
+    margin-block: 0 3mm;
+    margin-inline: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    font-family: 'Noto Serif JP';
+    font-weight: 700;
+    text-align: center;
+}
+.section-title::before {
+    content: '';
+    inline-size: 120mm;
+    block-size: 25mm;  
+    background-image: url("img/section-title.png"); /*背景画像を設定*/
+    background-size: 120mm;
+    background-repeat: no-repeat;
+    position: absolute;
+    inset-inline-start: 0mm;
+    inset-block-start: 0mm;
+    z-index: -1;
+}
+.section-title p {
+    font-size: 16Q;
+    line-height: 16Q;
+    text-indent: 0;
+    margin-block: 0 8Q;
+}
+.section-title h1 {
+    font-size: 32Q;
+    line-height: 32Q;
+    margin-block: 0;
+}
+
+/* リストの設定 */
+ul, ol {
+    margin-block: 0;
+    padding-inline-start: 1.5em;
+}
+ul li, ol li {
+    padding-inline-start: 0.5em;
+}
+ul li p, ol li p {
+    text-indent: 0;
+}
+
+/* テーブルの設定 */
+table {
+    width: 100%;
+    text-align: left;
+    border-collapse: collapse;
+    border-spacing: 0;
+    font-size: 14Q;
+    border-block: 1px solid #000;
+    margin-block: 16Q;
+}
+table th {
+    text-align: left;
+    border-block-end: 1px solid #000;
+}
+
+/* 定義リストの設定 */
+.desc-list {
+    margin-block: 12Q 4Q;
+}
+.desc-list-item {
+    display: flex;
+    margin-block: 4Q;
+}
+.desc-list-item-key {
+    border-radius: 5px;
+    line-height: 12Q;
+    margin-block: 2Q;
+    padding: 4Q;
+    background-color: #999;
+    color: white;
+    font-size: 12Q;
+    padding-inline: 6Q;
+    min-width: 30mm;
+    height: 20Q;
+    font-weight: 700;
+}
+.desc-list-item-value {
+    margin-inline-start: 8Q;
+    padding-block: 0;
+    font-size: 16Q;
+    line-height: 24Q;
+}
+
+/* セリフボックスの設定 */
+.serif, .rp, .select {
+    break-inside: avoid;
+    margin-block: 16Q;
+    padding: 8Q;
+    background-color: #eee;
+}
+.serif h4, .rp h4, .select h4 {
+    display: flex;
+    margin-block-start: 0;
+    margin-block-end: 8Q;
+    padding-block-end: 4Q;
+    height: 24Q;
+    line-height: 20Q;
+    font-size: 16Q;
+    align-items: center;
+    font-weight: 700;
+    border-bottom: dotted 2px #999;
+}
+.serif h4::before, .rp h4::before, .select h4::before {
+    margin-inline-start: 24Q;
+    margin-inline-end: 4Q;
+}
+.serif h4::before {
+    content: "セリフ:";
+}
+.rp h4::before {
+    content: "ロールプレイ:";
+}
+.select h4::before {
+    content: "選択:";
+}
+.serif h4::after, .rp h4::after, .select h4::after {
+    font-family: 'Material Symbols Outlined';
+    font-size: 20Q;
+    position: absolute;
+    font-weight: 700;
+}
+.serif h4::after {
+    content: "sms";
+}
+.rp h4::after {
+    content: "voice_selection";
+}
+.select h4::after {
+    content: "arrow_split";
+}
+.serif p, .rp p, .select p {
+    padding-inline: 8Q;
+}
+.serif p {
+    text-indent: 0;
+}
+
+/* 判定ボックスの設定 */
+.check, .info, .e-lois, .battle, .combo {
+    break-inside: avoid;
+    position: relative;
+    margin-block: 16Q;
+    padding-block: 24Q 8Q;
+    padding-inline: 8Q;
+    border: solid 2px #999;
+}
+.check::before, .info::before, .e-lois::before, .battle::before, .combo::before {
+    position: absolute;
+    display: flex;
+    align-items: center;
+    top: -2px;
+    left: -2px;
+    padding-inline: 24Q;
+    height: 20Q;
+    line-height: 20Q;
+    font-size: 12Q;
+    background: #999;
+    color: #fff;
+    font-weight: 700;
+    min-width: 30mm;
+}
+.check::before {
+    content: '判定';
+}
+.info::before {
+    content: '情報収集';
+}
+.e-lois::before {
+    content: 'Eロイス';
+}
+.battle::before {
+    content: '戦闘';
+}
+.combo::before {
+    content: 'コンボ'
+}
+.check::after, .info::after, .e-lois::after, .battle::after, .combo::after {
+    font-family: 'Material Symbols Outlined';
+    position: absolute;
+    display: flex;
+    align-items: center;
+    top: -2px;
+    left: -2px;
+    padding-inline: 8Q;
+    height: 20Q;
+    line-height: 20Q;
+    font-size: 14Q;
+    color: #fff;
+    font-weight: 700;
+}
+.check::after {
+    content: 'casino';
+}
+.info::after {
+    content: 'search'
+}
+.e-lois::after {
+    content: 'visibility';
+}
+.battle::after, .combo::after {
+    content: 'swords';
+}
+.check h4, .info h4, .e-lois h4, .battle h4, .combo h4 {
+    margin-block-start: 0;
+    border-bottom: 2px dotted #999;
+}
+
+/* トレーラーの設定 */
+.trailer p {
+    margin-block: 16Q;
+    text-indent: 0;
+    text-align: center;
+}
+
+/* 画像の設定 */
+img {
+    margin-block: 8Q;
+    margin-inline: auto;
+    display: block;
+}
+
+/* リンクの設定 */
+a {
+    color: #000;
+    text-decoration: none;
+}
+a.anchor::after {
+    content: " (p." target-counter(attr(href), page) ")";
+}
+table a.anchor::after {
+    content: "";
+}
+
+/* 改ページの設定 */
+hr.page-wrap {
+    break-after: page;
+    visibility: hidden;
+    margin: 0px;
+    padding: 0px;
+    height: 1px;
+}
+hr + h2,
+hr + section > h2:first-child,
+section:has(hr:last-child) + section > h2:first-child,
+hr + h3,
+hr + section > h3:first-child,
+section:has(hr:last-child) + section > h3:first-child {
+    margin-break: discard;
+}
+
+/* 目次の設定 */
+.toc li {
+    padding: 0;
+    list-style: none;
+}
+.toc ul {
+    padding: 0;
+}
+.toc li a {
+    display: inline-flex;
+    width: 100%;
+    text-decoration: none;
+    color: currentColor;
+    align-items: baseline;
+}
+.toc li a::before {
+    margin-left: 0.5em;
+    margin-right: 0.5em;
+    border-bottom: 1px dotted;
+    content: '';
+    order: 1;
+    flex: auto;
+}
+.toc li a::after {
+    text-align: right;
+    content: target-counter(attr(href), page);
+    align-self: flex-end;
+    flex: none;
+    order: 2;
+}

@@ -1,0 +1,108 @@
+{
+  "@context": [
+    "https://schema.org",
+    "https://www.w3.org/ns/pub-context"
+  ],
+  "type": "Book",
+  "conformsTo": "https://github.com/vivliostyle/vivliostyle-cli",
+  "name": "gift",
+  "author": "アンモナイト <ammonitedx@gmail.com>",
+  "inLanguage": "ja",
+  "dateModified": "2025-09-18T13:49:31.432Z",
+  "readingOrder": [
+    {
+      "url": "toc.html",
+      "name": "gift"
+    },
+    {
+      "url": "preplay.html",
+      "name": "gift"
+    },
+    {
+      "url": "npcs.html",
+      "name": "gift"
+    },
+    {
+      "url": "scenes.html",
+      "name": "gift"
+    },
+    {
+      "url": "op1.html",
+      "name": "gift"
+    },
+    {
+      "url": "op2.html",
+      "name": "gift"
+    },
+    {
+      "url": "op3.html",
+      "name": "gift"
+    },
+    {
+      "url": "md1.html",
+      "name": "gift"
+    },
+    {
+      "url": "md2.html",
+      "name": "gift"
+    },
+    {
+      "url": "md3.html",
+      "name": "gift"
+    },
+    {
+      "url": "md4.html",
+      "name": "gift"
+    },
+    {
+      "url": "md5a.html",
+      "name": "gift"
+    },
+    {
+      "url": "md5b.html",
+      "name": "gift"
+    },
+    {
+      "url": "md6a.html",
+      "name": "gift"
+    },
+    {
+      "url": "md6b.html",
+      "name": "gift"
+    },
+    {
+      "url": "md7.html",
+      "name": "gift"
+    },
+    {
+      "url": "cl1.html",
+      "name": "gift"
+    },
+    {
+      "url": "ed1.html",
+      "name": "gift"
+    },
+    {
+      "url": "afterplay.html",
+      "name": "gift"
+    },
+    {
+      "url": "liszt.html",
+      "name": "gift"
+    },
+    {
+      "url": "shiro.html",
+      "name": "gift"
+    },
+    {
+      "url": "kuro.html",
+      "name": "gift"
+    },
+    {
+      "url": "appendix.html",
+      "name": "gift"
+    }
+  ],
+  "resources": [],
+  "links": []
+}

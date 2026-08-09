@@ -1,0 +1,96 @@
+{
+  "@context": [
+    "https://schema.org",
+    "https://www.w3.org/ns/pub-context"
+  ],
+  "type": "Book",
+  "conformsTo": "https://github.com/vivliostyle/vivliostyle-cli",
+  "name": "gift",
+  "author": "アンモナイト <ammonitedx@gmail.com>",
+  "inLanguage": "ja",
+  "dateModified": "2025-09-05T13:42:32.902Z",
+  "readingOrder": [
+    {
+      "url": "00_preplay.html",
+      "name": "gift"
+    },
+    {
+      "url": "01_scenes.html",
+      "name": "gift"
+    },
+    {
+      "url": "02_op1.html",
+      "name": "gift"
+    },
+    {
+      "url": "03_op2.html",
+      "name": "gift"
+    },
+    {
+      "url": "04_op3.html",
+      "name": "gift"
+    },
+    {
+      "url": "05_md1.html",
+      "name": "gift"
+    },
+    {
+      "url": "06_md2.html",
+      "name": "gift"
+    },
+    {
+      "url": "07_md3.html",
+      "name": "gift"
+    },
+    {
+      "url": "08_md4.html",
+      "name": "gift"
+    },
+    {
+      "url": "09_md5a.html",
+      "name": "gift"
+    },
+    {
+      "url": "10_md5b.html",
+      "name": "gift"
+    },
+    {
+      "url": "11_md6a.html",
+      "name": "gift"
+    },
+    {
+      "url": "12_md6b.html",
+      "name": "gift"
+    },
+    {
+      "url": "13_md7.html",
+      "name": "gift"
+    },
+    {
+      "url": "14_cl1.html",
+      "name": "日常と才能"
+    },
+    {
+      "url": "15_ed1.html",
+      "name": "Gift from You"
+    },
+    {
+      "url": "16_afterplay.html",
+      "name": "アフタープレイ"
+    },
+    {
+      "url": "17_liszt.html",
+      "name": "奏 璃朱人"
+    },
+    {
+      "url": "18_shiro.html",
+      "name": "シロ"
+    },
+    {
+      "url": "19_kuro.html",
+      "name": "クロ"
+    }
+  ],
+  "resources": [],
+  "links": []
+}

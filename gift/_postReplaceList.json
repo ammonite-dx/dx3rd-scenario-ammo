@@ -1,0 +1,70 @@
+[ 
+  {
+    "f": ":::section-title (.+)</p>",
+    "r": "<div class=\"section-title\" data-section-id=\"$1\">"
+  },
+  {
+    "f": "<p>\\[(.+)\\] (.+)</p>",
+    "r": "<div class=\"desc-list-item\"><span class=\"desc-list-item-key\">$1</span> <span class=\"desc-list-item-value\">$2</span></div>"
+  },
+  {
+    "f": "(<div class=\"desc-list-item\">[\\s\\S]*?<\\/div>(?:\\s*<div class=\"desc-list-item\">[\\s\\S]*?<\\/div>)*)",
+    "r": "<div class=\"desc-list\">\n$1\n</div>"
+  },
+  {
+    "f": ":::serif (.+)",
+    "r": "<div class=\"serif\"><h4>$1</h4>"
+  },
+  {
+    "f": ":::rp (.+)",
+    "r": "<div class=\"rp\"><h4>$1</h4>"
+  },
+  {
+    "f": ":::select (.+)",
+    "r": "<div class=\"select\"><h4>$1</h4>"
+  },
+  {
+    "f": ":::check (.+)",
+    "r": "<div class=\"check\"><h4>$1</h4>"
+  },
+  {
+    "f": ":::info (.+)",
+    "r": "<div class=\"info\"><h4>$1</h4>"
+  },
+  {
+    "f": ":::e-lois (.+)",
+    "r": "<div class=\"e-lois\"><h4>$1</h4>"
+  },
+  {
+    "f": ":::battle (.+)",
+    "r": "<div class=\"battle\"><h4>$1</h4>"
+  },
+  {
+    "f": ":::combo (.+)",
+    "r": "<div class=\"combo\"><h4>$1</h4>"
+  },
+  {
+    "f": ":::trailer",
+    "r": "<div class=\"trailer\">"
+  },
+  {
+    "f": ":::toc",
+    "r": "<div class=\"toc\">"
+  },
+  {
+    "f": ":::",
+    "r": "</div>"
+  },
+  {
+    "f": "<hr>",
+    "r": "<hr class=\"page-wrap\">"
+  },
+  {
+    "f": "<a href=\"(.+).html\">",
+    "r": "<a class=\"anchor\" href=\"$1.html#h1_0\">"
+  },
+  {
+    "f": "<p>~(.+)</p>",
+    "r": "<p class=\"no-indent\">$1</p>"
+  }
+]
