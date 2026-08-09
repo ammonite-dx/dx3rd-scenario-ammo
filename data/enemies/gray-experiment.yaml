@@ -1,0 +1,133 @@
+schema: "dx3rd-scenario/enemy"
+version: 1
+enemy:
+  id: "gray-experiment"
+  name: "灰灯の実験体"
+  aliases:
+    - "灰灯"
+  syndromes:
+    - "ソラリス"
+    - "ノイマン"
+  encroachment:
+    rate: 118
+    level_bonus: 1
+    dice_bonus: 2
+    notes: "灰灯の共鳴で一時的に侵蝕が増幅している。"
+  impulse: "妄想"
+  abilities:
+    primary:
+      - id: "body"
+        name: "肉体"
+        value: 2
+      - id: "sense"
+        name: "感覚"
+        value: 4
+      - id: "mind"
+        name: "精神"
+        value: 5
+      - id: "social"
+        name: "社会"
+        value: 2
+    secondary:
+      - id: "hp-max"
+        name: "HP最大値"
+        value: 48
+      - id: "action"
+        name: "行動値"
+        value: 9
+    skills:
+      - id: "rc"
+        name: "RC"
+        ability_id: "mind"
+        value: 4
+      - id: "dodge"
+        name: "回避"
+        ability_id: "sense"
+        value: 2
+      - id: "knowledge-resonance"
+        name: "知識: 音響"
+        ability_id: "mind"
+        value: 3
+  effects:
+    - id: "afterglow-bind"
+      name: "残光の鎖"
+      group: "ソラリス"
+      level: 2
+      description: "聞き手の記憶へ共鳴を絡め取る。"
+    - id: "signal-distortion"
+      name: "信号撹乱"
+      group: "ソラリス"
+      level: 3
+      description: "音のない波で対象の認識を揺さぶる。"
+    - id: "concentrate-solaris"
+      name: "コンセントレイト：ソラリス"
+      group: "ソラリス"
+      level: 2
+    - id: "tactical-reading"
+      name: "戦術読解"
+      group: "ノイマン"
+      level: 2
+      description: "相手の動線を読み、共鳴の向きを変える。"
+  items:
+    - id: "gray-lantern"
+      name: "灰灯の端末"
+      category: "ユニークアイテム"
+      guard: 2
+      description: "失われた声を記録する煤けたランタン型端末。"
+    - id: "resonance-wire"
+      name: "共鳴導線"
+      category: "装備"
+      attack: 2
+      range: "視界"
+      description: "灰灯から伸びる細い導線。"
+  lois:
+    - id: "lost-sibling"
+      name: "失われた弟"
+      relation: "家族"
+      positive_emotion: "慈愛"
+      negative_emotion: "悔悟"
+  d_lois: []
+  e_lois:
+    - id: "silent-gift"
+      name: "静寂の贈与"
+      count: 1
+      description: "声の記憶を代償に共鳴を増幅するEロイス。"
+  combos:
+    - id: "afterglow-chain"
+      name: "残光の鎖"
+      effects:
+        - effect_id: "afterglow-bind"
+          level: 2
+        - effect_id: "concentrate-solaris"
+          level: 2
+        - effect_id: "tactical-reading"
+          level: 2
+      item_ids:
+        - "resonance-wire"
+      timing: "メジャーアクション"
+      target: "単体"
+      range: "視界"
+      check: "8dx8+4"
+      attack_type: "RC"
+      attack_power: 8
+      uses: "制限なし"
+      description: "共鳴導線を伸ばして攻撃し、命中した対象の次の判定を揺さぶる。"
+      notes: "共鳴導線を用いる単体攻撃。"
+    - id: "silent-overwrite"
+      name: "無音の上書き"
+      effects:
+        - effect_id: "signal-distortion"
+          level: 3
+        - effect_id: "concentrate-solaris"
+          level: 2
+      item_ids:
+        - "gray-lantern"
+      timing: "メジャーアクション"
+      target: "範囲（選択）"
+      range: "視界"
+      check: "7dx8+4"
+      attack_type: "RC"
+      attack_power: 6
+      uses: "1シナリオ1回"
+      description: "灰灯の光で複数の対象の記憶を一瞬だけ上書きする。"
+      notes: "灰灯の端末を媒介する範囲攻撃。"
