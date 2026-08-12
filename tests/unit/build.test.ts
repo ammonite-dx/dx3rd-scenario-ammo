@@ -3,6 +3,10 @@ import { join, resolve } from "node:path";
 import { describe, expect, it } from "vitest";
 
 import { readBuildConfig } from "../../src/build/config.js";
+import {
+  buildStagedVivliostyleConfig,
+  vivliostyleConfigStageBasePath,
+} from "../../src/build/pdf.js";
 import { preparePublication } from "../../src/build/publication.js";
 import {
   buildVivliostyleArgs,
@@ -122,5 +126,36 @@ describe("Vivliostyle CLI argument construction", () => {
 
     expect(relative.command).toBe(absolutePath);
     expect(absolute.command).toBe(absolutePath);
+  });
+});
+
+describe("Vivliostyle staged config", () => {
+  it("keeps the temporary config at root while retaining root-relative paths", () => {
+    const htmlPath = join(rootDir, "generated", "html", ".publication.stage.html");
+    const pdfPath = join(rootDir, "generated", "pdf", ".publication.stage.pdf");
+    const themePath = join(rootDir, "themes", "scenario-a5", "theme.css");
+    const workspaceDir = join(rootDir, "generated", ".vivliostyle");
+    const stagedConfig = buildStagedVivliostyleConfig(
+      rootDir,
+      htmlPath,
+      pdfPath,
+      themePath,
+      workspaceDir,
+      "a5",
+    );
+
+    expect(vivliostyleConfigStageBasePath(rootDir)).toBe(join(rootDir, "vivliostyle.config.js"));
+    expect(stagedConfig).toContain(
+      '"entry": "generated/html/.publication.stage.html"',
+    );
+    expect(stagedConfig).toContain(
+      '"theme": "themes/scenario-a5/theme.css"',
+    );
+    expect(stagedConfig).toContain(
+      '"workspaceDir": "generated/.vivliostyle"',
+    );
+    expect(stagedConfig).toContain(
+      '"path": "generated/pdf/.publication.stage.pdf"',
+    );
   });
 });

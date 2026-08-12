@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { dirname, resolve } from "node:path";
+import { resolve } from "node:path";
 
 import { BuildFailure, buildDiagnostic } from "./diagnostics.js";
 import {
@@ -25,7 +25,11 @@ export interface PdfBuildOptions {
   vivliostylePath?: string;
 }
 
-function stagedVivliostyleConfig(
+export function vivliostyleConfigStageBasePath(rootDir: string): string {
+  return resolve(rootDir, "vivliostyle.config.js");
+}
+
+export function buildStagedVivliostyleConfig(
   rootDir: string,
   htmlPath: string,
   pdfPath: string,
@@ -117,10 +121,10 @@ export function buildPdf(options: PdfBuildOptions): string {
   resolveExistingRepoPath(options.rootDir, options.vivliostyleConfigPath, "Vivliostyle config");
   const htmlStage = createTempPath(options.publication.htmlPath, ".html");
   const pdfStage = createTempPath(options.pdfPath, ".pdf");
-  const configStage = createTempPath(options.publication.htmlPath, ".vivliostyle.js");
+  const configStage = createTempPath(vivliostyleConfigStageBasePath(options.rootDir), ".js");
   try {
     writeTextFile(htmlStage, options.publication.html);
-    writeTextFile(configStage, stagedVivliostyleConfig(
+    writeTextFile(configStage, buildStagedVivliostyleConfig(
       options.rootDir,
       htmlStage,
       pdfStage,
