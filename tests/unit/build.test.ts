@@ -4,7 +4,7 @@ import { describe, expect, it } from "vitest";
 
 import { readBuildConfig } from "../../src/build/config.js";
 import { preparePublication } from "../../src/build/publication.js";
-import { buildVivliostyleArgs } from "../../src/build/vivliostyle.js";
+import { buildVivliostyleArgs, buildWindowsCommandLine } from "../../src/build/vivliostyle.js";
 
 const rootDir = process.cwd();
 
@@ -100,5 +100,14 @@ describe("Vivliostyle CLI argument construction", () => {
       "themes/scenario-a5/theme.css",
       "generated/html/publication.html",
     ]);
+  });
+
+  it("quotes Windows .cmd arguments containing spaces", () => {
+    expect(buildWindowsCommandLine("C:/tools/vivliostyle.cmd", [
+      "--executable-browser",
+      "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    ])).toBe(
+      "C:/tools/vivliostyle.cmd --executable-browser \"C:/Program Files/Google/Chrome/Application/chrome.exe\"",
+    );
   });
 });

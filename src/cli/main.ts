@@ -139,10 +139,12 @@ export function runCli(args: readonly string[], context: { cwd?: string; io?: Cl
     const htmlPath = resolveOutputRepoPath(rootDir, config.output.html, "HTML output");
     const publication = preparePublication(rootDir, config, parsed.paper, repoRelativePath(rootDir, htmlPath));
     const pdfPath = resolveOutputRepoPath(rootDir, parsed.outputPath ?? config.output.pdf[parsed.paper], "PDF output");
-    const configRelative = repoRelativePath(rootDir, configFile);
+    const vivliostyleConfigPath = resolveExistingRepoPath(rootDir, config.vivliostyleConfig, "Vivliostyle config");
+    const workspacePath = resolveOutputRepoPath(rootDir, config.workspaceDir, "Vivliostyle workspace");
     const result = buildPdf({
       rootDir,
-      configPath: configRelative,
+      vivliostyleConfigPath: repoRelativePath(rootDir, vivliostyleConfigPath),
+      workspaceDir: workspacePath,
       publication,
       pdfPath,
       paper: parsed.paper,

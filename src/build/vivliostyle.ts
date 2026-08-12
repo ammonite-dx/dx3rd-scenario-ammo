@@ -107,6 +107,15 @@ function isCmd(command: string): boolean {
   return process.platform === "win32" && /\.(?:cmd|bat)$/iu.test(command);
 }
 
+function quoteWindowsCmdArg(value: string): string {
+  if (!/[\s"&|<>^]/u.test(value)) return value;
+  return `"${value.replaceAll('"', '\\"')}"`;
+}
+
+export function buildWindowsCommandLine(command: string, args: readonly string[]): string {
+  return [command, ...args].map(quoteWindowsCmdArg).join(" ");
+}
+
 export function runVivliostyle(options: VivliostyleBuildOptions): void {
   const configPath = resolveExistingRepoPath(options.rootDir, options.configPath, "Vivliostyle config");
   const configRelative = repoRelativePath(options.rootDir, configPath);
@@ -124,10 +133,16 @@ export function runVivliostyle(options: VivliostyleBuildOptions): void {
     ...(browser ? { browser } : {}),
   });
 
-  const result = spawnSync(options.executable.command, args, {
+  const useCmdShell = isCmd(options.executable.command);
+  const command = useCmdShell ? process.env.ComSpec ?? "cmd.exe" : options.executable.command;
+  const commandArgs = useCmdShell
+    ? ["/d", "/s", "/c", buildWindowsCommandLine(options.executable.command, args)]
+    : args;
+  const result = spawnSync(command, commandArgs, {
     cwd: options.rootDir,
     encoding: "utf8",
-    shell: isCmd(options.executable.command),
+    shell: false,
+    windowsVerbatimArguments: useCmdShell,
     stdio: "inherit",
     windowsHide: true,
   });
