@@ -1,0 +1,16 @@
+/* Alternate entry point. Keep the semantic HTML and all component rules in theme.css. */
+@import url("./theme.css");
+
+:root {
+  --page-size: A4;
+  --page-margin-block-start: 18mm;
+  --page-margin-block-end: 18mm;
+  --page-margin-inline: 18mm;
+  --font-size-body: 11pt;
+}
+
+@page {
+  size: A4 portrait;
+  bleed: 3mm;
+  margin: 18mm;
+}

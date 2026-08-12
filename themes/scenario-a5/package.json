@@ -1,0 +1,32 @@
+{
+  "name": "vivliostyle-theme-dx3rd-scenario-a5",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A5-first Vivliostyle theme for DX3rd scenario semantic HTML",
+  "files": [
+    "theme.css",
+    "theme-a4.css",
+    "README.md"
+  ],
+  "keywords": [
+    "vivliostyle",
+    "vivliostyle-theme",
+    "trpg",
+    "dx3rd"
+  ],
+  "license": "UNLICENSED",
+  "vivliostyle": {
+    "theme": {
+      "name": "DX3rd Scenario A5",
+      "author": "dx3rd-scenario-ammo",
+      "style": "./theme.css",
+      "main": "./theme.css",
+      "category": "misc",
+      "keywords": [
+        "trpg",
+        "dx3rd",
+        "scenario"
+      ]
+    }
+  }
+}

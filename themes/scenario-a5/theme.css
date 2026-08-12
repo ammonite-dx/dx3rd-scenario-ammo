@@ -1,0 +1,834 @@
+/*
+ * DX3rd scenario Theme
+ *
+ * The semantic HTML contract is the source of truth for every selector in
+ * this file.  A5 is intentionally the default; theme-a4.css is the small
+ * alternate entry point for the same HTML.
+ */
+
+:root {
+  --page-size: A5;
+  --page-bleed: 3mm;
+  --page-margin-block-start: 16mm;
+  --page-margin-block-end: 17mm;
+  --page-margin-inline: 14mm;
+
+  --font-body: "Noto Serif JP", "Yu Mincho", "Hiragino Mincho ProN", "BIZ UDPMincho", "MS Mincho", serif;
+  --font-ui: "Noto Sans JP", "Yu Gothic", "Hiragino Kaku Gothic ProN", "BIZ UDPGothic", "MS Gothic", sans-serif;
+  --font-mono: "Cascadia Mono", "SFMono-Regular", "BIZ UDGothic", "MS Gothic", ui-monospace, monospace;
+  --font-size-body: 10.5pt;
+  --line-height-body: 1.75;
+  --line-height-tight: 1.3;
+
+  --color-ink: #202124;
+  --color-muted: #5f6368;
+  --color-rule: #8a8f98;
+  --color-rule-light: #c9cdd2;
+  --color-panel: #f4f5f3;
+  --color-panel-strong: #e9ece8;
+  --color-accent: #274c5e;
+  --color-accent-dark: #17303b;
+  --color-link: #164e63;
+
+  --rule-thin: 0.4pt;
+  --rule-medium: 0.8pt;
+  --space-1: 0.25rem;
+  --space-2: 0.5rem;
+  --space-3: 0.75rem;
+  --space-4: 1rem;
+  --space-5: 1.5rem;
+}
+
+@page {
+  size: A5 portrait;
+  bleed: 3mm;
+  margin: 16mm 14mm 17mm;
+
+  @top-left {
+    content: string(document-kicker);
+    font-family: var(--font-ui);
+    font-size: 8pt;
+    color: var(--color-muted);
+    border-block-end: var(--rule-thin) solid var(--color-rule-light);
+    padding-block-end: 1.5mm;
+  }
+
+  @top-right {
+    content: string(document-title);
+    font-family: var(--font-ui);
+    font-size: 8pt;
+    color: var(--color-muted);
+    text-align: end;
+    border-block-end: var(--rule-thin) solid var(--color-rule-light);
+    padding-block-end: 1.5mm;
+  }
+
+  @bottom-left {
+    content: string(section-title);
+    font-family: var(--font-ui);
+    font-size: 8pt;
+    color: var(--color-muted);
+    border-block-start: var(--rule-thin) solid var(--color-rule-light);
+    padding-block-start: 1.5mm;
+  }
+
+  @bottom-right {
+    content: counter(page);
+    font-family: var(--font-ui);
+    font-size: 8pt;
+    color: var(--color-ink);
+    text-align: end;
+    border-block-start: var(--rule-thin) solid var(--color-rule-light);
+    padding-block-start: 1.5mm;
+  }
+}
+
+@page :left {
+  @top-left {
+    content: string(document-title);
+    text-align: start;
+  }
+
+  @top-right {
+    content: string(document-kicker);
+    text-align: end;
+  }
+
+  @bottom-left {
+    content: counter(page);
+    text-align: start;
+  }
+
+  @bottom-right {
+    content: string(section-title);
+    text-align: end;
+  }
+}
+
+@page :right {
+  @top-left {
+    content: string(document-kicker);
+    text-align: start;
+  }
+
+  @top-right {
+    content: string(document-title);
+    text-align: end;
+  }
+
+  @bottom-left {
+    content: string(section-title);
+    text-align: start;
+  }
+
+  @bottom-right {
+    content: counter(page);
+    text-align: end;
+  }
+}
+
+@page :first {
+  @top-left {
+    content: none;
+    border: 0;
+  }
+
+  @top-right {
+    content: none;
+    border: 0;
+  }
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html[data-html-contract="dx3rd-scenario/v1"] {
+  color: var(--color-ink);
+  background: #fff;
+  line-break: strict;
+  overflow-wrap: anywhere;
+  word-break: normal;
+}
+
+/* Keep the contract's data-region and anchor hooks explicit for Theme users. */
+.document-header[data-region="document-header"],
+.document-kicker[data-region="document-kicker"],
+.document-body[data-region="document-body"],
+section.document-section[data-section-id],
+section.scenario-block[data-block-id],
+.scenario-block__header[data-region="block-header"],
+.scenario-block__body[data-region="block-body"],
+.field-list[data-region="field-list"],
+.document-toc[data-region="toc"],
+.document-figure[data-region="figure"],
+.document-toc__link[data-link-kind="toc"],
+.structured-data-reference[data-link-kind="structured-data"],
+section.structured-data[data-region="structured-data"],
+.structured-data__header[data-region="data-header"],
+.structured-data__body[data-region="data-body"],
+.data-fields[data-region="data-fields"],
+.data-list[data-region="data-list"],
+.combo-data[data-combo-id],
+[data-ability-id],
+[data-data-schema="dx3rd-scenario/enemy"][data-data-version="1"] {
+  min-inline-size: 0;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-body);
+  font-size: var(--font-size-body);
+  line-height: var(--line-height-body);
+  font-weight: 400;
+  text-rendering: optimizeLegibility;
+  orphans: 3;
+  widows: 3;
+}
+
+main.document {
+  display: block;
+  string-set: document-id attr(data-document-id);
+  max-inline-size: 100%;
+}
+
+.document-header {
+  break-after: avoid-page;
+  margin-block: 0 var(--space-5);
+  padding-block-end: var(--space-3);
+  border-block-end: 1.2pt solid var(--color-accent-dark);
+}
+
+.document-kicker {
+  string-set: document-kicker content(text);
+  margin-block: 0 var(--space-1);
+  color: var(--color-muted);
+  font-family: var(--font-ui);
+  font-size: 9pt;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  line-height: var(--line-height-tight);
+}
+
+.document-title {
+  string-set: document-title content(text);
+  margin-block: 0;
+  color: var(--color-accent-dark);
+  font-family: var(--font-ui);
+  font-size: 21pt;
+  font-weight: 750;
+  line-height: 1.2;
+  break-after: avoid-page;
+  overflow-wrap: anywhere;
+}
+
+.document-body {
+  display: block;
+  min-inline-size: 0;
+}
+
+.document-body > p,
+.document-section p,
+.scenario-block p,
+.structured-data p {
+  margin-block: 0 var(--space-3);
+  text-indent: 1em;
+}
+
+.scenario-block p,
+.structured-data p,
+.document-figure p {
+  text-indent: 0;
+}
+
+.document-body > p:last-child,
+.document-section > p:last-child,
+.scenario-block__body > p:last-child,
+.structured-data__body > p:last-child {
+  margin-block-end: 0;
+}
+
+section.document-section,
+.document-section {
+  display: block;
+  margin-block: var(--space-5) 0;
+  min-inline-size: 0;
+}
+
+.document-section__title {
+  string-set: section-title content(text);
+  margin-block: 0 var(--space-3);
+  padding-block-end: var(--space-1);
+  color: var(--color-accent-dark);
+  font-family: var(--font-ui);
+  font-size: 15pt;
+  font-weight: 700;
+  line-height: 1.3;
+  border-block-end: var(--rule-medium) solid var(--color-accent);
+  break-before: avoid-page;
+  break-after: avoid-page;
+  break-inside: avoid;
+  overflow-wrap: anywhere;
+}
+
+.document-section[data-section-level="3"] .document-section__title,
+.document-section[data-section-level="4"] .document-section__title,
+.document-section[data-section-level="5"] .document-section__title,
+.document-section[data-section-level="6"] .document-section__title {
+  margin-block-start: var(--space-4);
+  font-size: 12pt;
+  border-block-end-width: var(--rule-thin);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-ui);
+  line-height: var(--line-height-tight);
+  break-after: avoid-page;
+  break-inside: avoid;
+  overflow-wrap: anywhere;
+}
+
+/* Contract-compatible generated TOCs can opt into page-number leaders. */
+.document-toc {
+  break-before: page;
+  break-inside: avoid-page;
+  margin-block: 0 var(--space-5);
+  padding: var(--space-4);
+  border: var(--rule-medium) solid var(--color-rule);
+  background: var(--color-panel);
+}
+
+.document-toc__title {
+  margin-block: 0 var(--space-3);
+  font-size: 14pt;
+}
+
+.document-toc ol,
+.document-toc ul {
+  margin-block: 0;
+  padding-inline-start: 1.25em;
+}
+
+.document-toc li {
+  break-inside: avoid;
+  padding-inline-start: var(--space-1);
+}
+
+.document-toc__link {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-2);
+  color: inherit;
+  text-decoration: none;
+  overflow-wrap: anywhere;
+}
+
+.document-toc__link::after {
+  content: leader(".") target-counter(attr(href), page);
+  flex: 1 0 auto;
+  text-align: end;
+  overflow-wrap: normal;
+}
+
+/* Images and figures are kept together and scale to the current page width. */
+.document-figure {
+  break-inside: avoid-page;
+  margin-block: var(--space-4);
+  margin-inline: 0;
+  text-align: center;
+}
+
+.document-figure img,
+img {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+  margin-inline: auto;
+}
+
+.document-figure figcaption {
+  margin-block-start: var(--space-2);
+  color: var(--color-muted);
+  font-family: var(--font-ui);
+  font-size: 9pt;
+  line-height: 1.4;
+  text-align: start;
+}
+
+/* Common narrative-block frame. Long content may still split when it cannot fit. */
+section.scenario-block,
+.scenario-block {
+  --block-accent: var(--color-accent);
+  --block-fill: var(--color-panel);
+  display: block;
+  margin-block: var(--space-4);
+  padding-block: var(--space-3);
+  padding-inline: var(--space-3);
+  border: var(--rule-medium) solid var(--color-rule);
+  border-inline-start: 1.4mm solid var(--block-accent);
+  background: var(--block-fill);
+  break-inside: avoid-page;
+  page-break-inside: avoid;
+  orphans: 3;
+  widows: 3;
+}
+
+.scenario-block__header {
+  margin-block: 0 var(--space-2);
+  padding-block-end: var(--space-2);
+  border-block-end: var(--rule-thin) solid var(--color-rule-light);
+  break-after: avoid-page;
+}
+
+.scenario-block__title {
+  margin: 0;
+  color: var(--color-accent-dark);
+  font-size: 11.5pt;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.scenario-block__body {
+  min-inline-size: 0;
+}
+
+.scenario-block__body > .field-list:first-child {
+  margin-block-start: 0;
+}
+
+/* Each modifier has a non-colour distinction so grayscale printing preserves meaning. */
+.scenario-block--dialogue,
+.scenario-block[data-block-kind="dialogue"] {
+  --block-accent: #315b70;
+  --block-fill: #f5f8f9;
+  border-inline-start-style: solid;
+}
+
+.scenario-block--roleplay,
+.scenario-block[data-block-kind="roleplay"] {
+  --block-accent: #536b4f;
+  --block-fill: #f5f7f3;
+  border-inline-start-style: dotted;
+}
+
+.scenario-block--roleplay .scenario-block__title {
+  font-style: italic;
+}
+
+.scenario-block--choice,
+.scenario-block[data-block-kind="choice"] {
+  --block-accent: #765c32;
+  --block-fill: #faf8f1;
+  border-style: dashed;
+  border-inline-start-width: 1.8mm;
+}
+
+.scenario-block--check,
+.scenario-block[data-block-kind="check"] {
+  --block-accent: #7a3d3d;
+  --block-fill: #fbf5f5;
+  border-inline-start-width: 1.8mm;
+}
+
+.scenario-block--check[data-check-mandatory="true"] {
+  border-style: double;
+  border-inline-start-width: 2mm;
+}
+
+.scenario-block--check[data-check-mandatory="false"] {
+  border-block-style: dashed;
+}
+
+.scenario-block--info,
+.scenario-block[data-block-kind="info"] {
+  --block-accent: #4b6381;
+  --block-fill: #f4f6fa;
+  border-inline-start-style: double;
+}
+
+.scenario-block--e-lois,
+.scenario-block[data-block-kind="e-lois"] {
+  --block-accent: #674e73;
+  --block-fill: #f7f4f8;
+  border-block-style: double;
+  border-inline-start-style: solid;
+}
+
+.scenario-block--battle,
+.scenario-block[data-block-kind="battle"] {
+  --block-accent: #6b3434;
+  --block-fill: #faf3f0;
+  border-inline-start-style: double;
+  border-block-width: 1pt;
+}
+
+.field-list,
+.data-fields {
+  display: block;
+  margin-block: var(--space-2) var(--space-3);
+  padding: 0;
+}
+
+.field-list__item,
+.data-fields__item {
+  display: grid;
+  grid-template-columns: minmax(4.75em, 8em) minmax(0, 1fr);
+  gap: var(--space-2);
+  margin: 0;
+  padding-block: var(--space-1);
+  border-block-end: var(--rule-thin) solid var(--color-rule-light);
+  break-inside: avoid;
+  min-inline-size: 0;
+}
+
+.field-list__item:first-child,
+.data-fields__item:first-child {
+  border-block-start: var(--rule-thin) solid var(--color-rule-light);
+}
+
+.field-list__item > dt,
+.data-fields__item > dt {
+  margin: 0;
+  color: var(--color-muted);
+  font-family: var(--font-ui);
+  font-size: 9pt;
+  font-weight: 700;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+
+.field-list__item > dd,
+.data-fields__item > dd {
+  min-inline-size: 0;
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+
+.field-list__item[data-field-key="required"] > dt,
+.field-list__item[data-field-key="required"] > dd,
+.field-list__item[data-field-key="difficulty"] > dd {
+  font-weight: 700;
+}
+
+.field-list__item[data-field-key="difficulty"] > dd,
+.data-fields__item[data-field-key="level"] > dd,
+.data-fields__item[data-field-key="count"] > dd {
+  font-variant-numeric: tabular-nums;
+}
+
+.data-fields .data-fields {
+  margin-block: var(--space-1);
+}
+
+.data-fields .data-fields__item {
+  grid-template-columns: minmax(5em, 7em) minmax(0, 1fr);
+}
+
+ul,
+ol {
+  margin-block: 0 var(--space-3);
+  padding-inline-start: 1.45em;
+}
+
+li {
+  padding-inline-start: var(--space-1);
+  overflow-wrap: anywhere;
+}
+
+li > p,
+li > .data-fields,
+li > .data-list {
+  text-indent: 0;
+}
+
+/* Structured data is intentionally a set of readable panels, not a flattened table. */
+section.structured-data,
+.structured-data {
+  --data-accent: var(--color-accent);
+  display: block;
+  margin-block: var(--space-5);
+  border: var(--rule-medium) solid var(--color-rule);
+  break-before: avoid-page;
+  break-inside: auto;
+  min-inline-size: 0;
+}
+
+.structured-data--enemy,
+.structured-data[data-data-kind="enemy"] {
+  --data-accent: #2b5665;
+  border-block-start: 1.5pt double var(--data-accent);
+}
+
+.structured-data--combo,
+.structured-data[data-data-kind="combo"] {
+  --data-accent: #6a4a2f;
+  border-block-start: 1.5pt dashed var(--data-accent);
+  break-inside: avoid-page;
+}
+
+.structured-data[data-data-schema="dx3rd-scenario/enemy"][data-data-version="1"] {
+  break-before: avoid-page;
+}
+
+.structured-data__header {
+  padding-block: var(--space-2);
+  padding-inline: var(--space-3);
+  border-block-end: var(--rule-medium) solid var(--data-accent);
+  background: var(--color-panel-strong);
+  break-after: avoid-page;
+}
+
+.structured-data__title {
+  margin: 0;
+  color: var(--color-accent-dark);
+  font-size: 13pt;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.structured-data__body {
+  padding-block: var(--space-2) var(--space-3);
+  padding-inline: var(--space-3);
+  min-inline-size: 0;
+}
+
+.structured-data__section {
+  margin-block: var(--space-4);
+  break-inside: auto;
+  min-inline-size: 0;
+}
+
+.structured-data__section:first-child {
+  margin-block-start: var(--space-2);
+}
+
+.structured-data__section-title {
+  margin-block: 0 var(--space-2);
+  padding-block-end: var(--space-1);
+  color: var(--data-accent);
+  font-size: 10.5pt;
+  font-weight: 700;
+  line-height: 1.35;
+  border-block-end: var(--rule-thin) solid var(--color-rule-light);
+  break-after: avoid-page;
+}
+
+.structured-data__section[data-data-section="basic"],
+.structured-data__section[data-data-section="abilities"],
+.structured-data__section[data-data-section="effects"],
+.structured-data__section[data-data-section="items"],
+.structured-data__section[data-data-section="lois"],
+.structured-data__section[data-data-section="d-lois"],
+.structured-data__section[data-data-section="e-lois"],
+.structured-data__section[data-data-section="combos"] {
+  break-inside: auto;
+}
+
+.data-list {
+  margin-block: 0 var(--space-3);
+  padding-inline-start: 1.4em;
+}
+
+.data-list__item {
+  margin-block: var(--space-2);
+  padding-inline-start: var(--space-1);
+  break-inside: avoid-page;
+  min-inline-size: 0;
+}
+
+.data-list__item::marker {
+  color: var(--data-accent);
+  font-family: var(--font-ui);
+  font-weight: 700;
+}
+
+.data-list__item-title,
+.combo-data__title {
+  margin-block: 0 var(--space-1);
+  color: var(--color-accent-dark);
+  font-size: 10pt;
+  font-weight: 700;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+  break-after: avoid-page;
+}
+
+.combo-data {
+  margin-block: var(--space-2);
+  padding: var(--space-2);
+  border: var(--rule-thin) solid var(--color-rule-light);
+  background: var(--color-panel);
+  break-inside: avoid-page;
+  min-inline-size: 0;
+}
+
+.combo-data__title {
+  font-size: 11pt;
+}
+
+.data-reference-list {
+  margin-block: var(--space-2) 0;
+  padding-block: var(--space-1);
+  padding-inline-start: 1.5em;
+  border-block-start: var(--rule-thin) solid var(--color-rule-light);
+  break-inside: avoid;
+}
+
+.data-reference-list[data-region="effect-references"] {
+  border-block-start-style: dashed;
+}
+
+.data-reference-list[data-region="item-references"] {
+  border-block-start-style: dotted;
+}
+
+.data-reference-list li {
+  break-inside: avoid;
+}
+
+/* Tables retain headers and keep rows intact across pages. */
+table {
+  inline-size: 100%;
+  max-inline-size: 100%;
+  margin-block: var(--space-4);
+  border-collapse: collapse;
+  border-block: var(--rule-medium) solid var(--color-rule);
+  font-size: 9.5pt;
+  line-height: 1.5;
+  text-align: start;
+  break-inside: auto;
+}
+
+caption {
+  margin-block-end: var(--space-2);
+  color: var(--color-muted);
+  font-family: var(--font-ui);
+  font-size: 9pt;
+  font-weight: 700;
+  text-align: start;
+}
+
+thead {
+  display: table-header-group;
+}
+
+tfoot {
+  display: table-footer-group;
+}
+
+tr {
+  break-inside: avoid;
+  page-break-inside: avoid;
+}
+
+th,
+td {
+  padding-block: var(--space-1);
+  padding-inline: var(--space-2);
+  border-block-end: var(--rule-thin) solid var(--color-rule-light);
+  vertical-align: top;
+  overflow-wrap: anywhere;
+}
+
+th {
+  color: var(--color-accent-dark);
+  font-family: var(--font-ui);
+  font-weight: 700;
+  text-align: start;
+  background: var(--color-panel-strong);
+}
+
+blockquote {
+  margin-block: var(--space-4);
+  margin-inline: 0;
+  padding-block: var(--space-1);
+  padding-inline: var(--space-3);
+  border-inline-start: 1.2mm solid var(--color-rule);
+  background: var(--color-panel);
+  break-inside: avoid-page;
+}
+
+blockquote p {
+  text-indent: 0;
+}
+
+pre,
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  line-height: 1.55;
+}
+
+code {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+pre {
+  margin-block: var(--space-4);
+  padding: var(--space-2);
+  border: var(--rule-thin) solid var(--color-rule-light);
+  background: var(--color-panel);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  break-inside: avoid-page;
+}
+
+a {
+  color: var(--color-link);
+  text-decoration-line: underline;
+  text-decoration-thickness: 0.5pt;
+  text-underline-offset: 0.12em;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+a.structured-data-reference[data-link-kind="structured-data"],
+a[data-link-kind="structured-data"] {
+  font-weight: 700;
+}
+
+a[data-link-kind="internal"],
+a[data-link-kind="cross-document"],
+a[data-link-kind="external"],
+a[data-link-kind="toc"] {
+  overflow-wrap: anywhere;
+}
+
+a[data-data-kind="enemy"] {
+  text-decoration-style: solid;
+}
+
+a[data-data-kind="combo"] {
+  text-decoration-style: dashed;
+}
+
+hr {
+  margin-block: var(--space-5);
+  border: 0;
+  border-block-start: var(--rule-medium) solid var(--color-rule);
+}
+
+/* Print safety for compact inline content and the long identifiers in YAML data. */
+[data-document-id],
+[data-section-id],
+[data-block-id],
+[data-block-kind],
+[data-field-key],
+[data-enemy-id],
+[data-combo-id],
+[data-entry-id],
+[data-ability-id],
+[data-effect-id],
+[data-item-id] {
+  overflow-wrap: anywhere;
+}
