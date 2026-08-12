@@ -4,7 +4,9 @@ from __future__ import annotations
 
 import argparse
 import json
+import logging
 import sys
+import unicodedata
 from pathlib import Path
 
 
@@ -13,6 +15,30 @@ ERROR_PAGE_MARKERS = (
     "Below is a rendering of the page up to the first error.",
     "Start tag expected",
 )
+
+
+def normalize_for_comparison(value: str) -> str:
+    """Normalize extracted and expected text before semantic comparisons."""
+
+    return unicodedata.normalize("NFKC", value)
+
+
+def find_error_page_markers(text: str) -> list[str]:
+    normalized_text = normalize_for_comparison(text).casefold()
+    return [
+        marker
+        for marker in ERROR_PAGE_MARKERS
+        if normalize_for_comparison(marker).casefold() in normalized_text
+    ]
+
+
+def find_missing_titles(text: str, titles: list[str]) -> list[str]:
+    normalized_text = normalize_for_comparison(text)
+    return [
+        title
+        for title in titles
+        if normalize_for_comparison(title) not in normalized_text
+    ]
 
 
 def expected_size_mm(paper: str) -> tuple[float, float]:
@@ -84,14 +110,25 @@ def main() -> int:
         try:
             import pdfplumber
 
-            with pdfplumber.open(str(pdf_path)) as pdf:
-                fallback = "\n".join((page.extract_text() or "") for page in pdf.pages)
+            pdfminer_loggers = (
+                logging.getLogger("pdfminer"),
+                logging.getLogger("pdfminer.pdffont"),
+            )
+            previous_levels = [logger.level for logger in pdfminer_loggers]
+            for logger in pdfminer_loggers:
+                logger.setLevel(logging.ERROR)
+            try:
+                with pdfplumber.open(str(pdf_path)) as pdf:
+                    fallback = "\n".join((page.extract_text() or "") for page in pdf.pages)
+            finally:
+                for logger, level in zip(pdfminer_loggers, previous_levels):
+                    logger.setLevel(level)
             if len(fallback) > len(all_text):
                 all_text = fallback
         except Exception:
             pass
 
-        error_markers = [marker for marker in ERROR_PAGE_MARKERS if marker.casefold() in all_text.casefold()]
+        error_markers = find_error_page_markers(all_text)
         if error_markers:
             print(
                 "Vivliostyle/XML error page detected in extracted PDF text: "
@@ -100,7 +137,7 @@ def main() -> int:
             )
             return 2
 
-        missing = [title for title in args.title if title not in all_text]
+        missing = find_missing_titles(all_text, args.title)
         if missing:
             print(f"Missing chapter titles in extracted PDF text: {missing}", file=sys.stderr)
             return 2

@@ -5,4 +5,6 @@ generated/
 coverage/
 test-results/
 tmp/
+__pycache__/
+*.py[cod]
 *.tsbuildinfo
