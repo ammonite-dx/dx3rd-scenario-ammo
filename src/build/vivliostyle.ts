@@ -89,12 +89,16 @@ function isCmd(command: string): boolean {
 }
 
 function quoteWindowsCmdArg(value: string): string {
-  if (!/[\s"&|<>^]/u.test(value)) return value;
+  if (!/[\s"&|<>()^]/u.test(value)) return value;
   return `"${value.replaceAll('"', '\\"')}"`;
 }
 
 export function buildWindowsCommandLine(command: string, args: readonly string[]): string {
   return [command, ...args].map(quoteWindowsCmdArg).join(" ");
+}
+
+export function buildWindowsShellCommand(command: string, args: readonly string[]): string {
+  return `call ${buildWindowsCommandLine(command, args)}`;
 }
 
 export function runVivliostyle(options: VivliostyleBuildOptions): void {
@@ -110,7 +114,7 @@ export function runVivliostyle(options: VivliostyleBuildOptions): void {
   const useCmdShell = isCmd(options.executable.command);
   const command = useCmdShell ? process.env.ComSpec ?? "cmd.exe" : options.executable.command;
   const commandArgs = useCmdShell
-    ? ["/d", "/s", "/c", buildWindowsCommandLine(options.executable.command, args)]
+    ? ["/d", "/s", "/c", buildWindowsShellCommand(options.executable.command, args)]
     : args;
   const result = spawnSync(command, commandArgs, {
     cwd: options.rootDir,

@@ -1,3 +1,12 @@
+import {
+  existsSync,
+  mkdirSync,
+  mkdtempSync,
+  readFileSync,
+  rmSync,
+  writeFileSync,
+} from "node:fs";
+import { tmpdir } from "node:os";
 import { join, resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
@@ -11,7 +20,9 @@ import { preparePublication } from "../../src/build/publication.js";
 import {
   buildVivliostyleArgs,
   buildWindowsCommandLine,
+  buildWindowsShellCommand,
   locateVivliostyle,
+  runVivliostyle,
 } from "../../src/build/vivliostyle.js";
 
 const rootDir = process.cwd();
@@ -90,6 +101,62 @@ describe("Vivliostyle CLI argument construction", () => {
     ])).toBe(
       "C:/tools/vivliostyle.cmd --executable-browser \"C:/Program Files/Google/Chrome/Application/chrome.exe\"",
     );
+  });
+
+  it("wraps the complete Windows /c command for paths with spaces and metacharacters", () => {
+    expect(buildWindowsShellCommand("C:/tools/vivliostyle & runner.cmd", [
+      "--executable-browser",
+      "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    ])).toBe(
+      'call "C:/tools/vivliostyle & runner.cmd" --executable-browser "C:/Program Files/Google/Chrome/Application/chrome.exe"',
+    );
+  });
+
+  it("waits for a Windows .cmd boundary and propagates both success and failure", () => {
+    if (process.platform !== "win32") return;
+
+    const temporaryRoot = mkdtempSync(join(tmpdir(), "vivliostyle-cmd-boundary-"));
+    const boundaryDir = join(temporaryRoot, "cmd boundary & spaces");
+    const commandPath = join(boundaryDir, "dummy vivliostyle & runner.cmd");
+    const browserPath = join(boundaryDir, "browser & argument.exe");
+    const markerPath = join(boundaryDir, "marker.txt");
+    const previousBrowser = process.env.VIVLIOSTYLE_BROWSER;
+
+    const writeDummyCommand = (exitCode: number): void => {
+      writeFileSync(commandPath, [
+        "@echo off",
+        '> "%~dp0marker.txt" echo %*',
+        `exit /b ${String(exitCode)}`,
+        "",
+      ].join("\r\n"), "utf8");
+    };
+
+    try {
+      mkdirSync(boundaryDir, { recursive: true });
+      writeFileSync(browserPath, "", "utf8");
+      writeDummyCommand(0);
+      process.env.VIVLIOSTYLE_BROWSER = browserPath;
+
+      const options = {
+        rootDir,
+        executable: { command: commandPath, prefixArgs: [], label: "dummy Vivliostyle" },
+        configPath: "package.json",
+      };
+      expect(() => runVivliostyle(options)).not.toThrow();
+      expect(existsSync(markerPath)).toBe(true);
+      expect(readFileSync(markerPath, "utf8")).toContain(
+        `--executable-browser "${browserPath}"`,
+      );
+
+      rmSync(markerPath, { force: true });
+      writeDummyCommand(23);
+      expect(() => runVivliostyle(options)).toThrow("dummy Vivliostyle exited with status 23.");
+      expect(existsSync(markerPath)).toBe(true);
+    } finally {
+      if (previousBrowser === undefined) delete process.env.VIVLIOSTYLE_BROWSER;
+      else process.env.VIVLIOSTYLE_BROWSER = previousBrowser;
+      rmSync(temporaryRoot, { recursive: true, force: true });
+    }
   });
 
   it("resolves relative explicit executables from rootDir and preserves absolute paths", () => {
