@@ -1,10 +1,14 @@
-import { join } from "node:path";
+import { join, resolve } from "node:path";
 
 import { describe, expect, it } from "vitest";
 
 import { readBuildConfig } from "../../src/build/config.js";
 import { preparePublication } from "../../src/build/publication.js";
-import { buildVivliostyleArgs, buildWindowsCommandLine } from "../../src/build/vivliostyle.js";
+import {
+  buildVivliostyleArgs,
+  buildWindowsCommandLine,
+  locateVivliostyle,
+} from "../../src/build/vivliostyle.js";
 
 const rootDir = process.cwd();
 
@@ -109,5 +113,14 @@ describe("Vivliostyle CLI argument construction", () => {
     ])).toBe(
       "C:/tools/vivliostyle.cmd --executable-browser \"C:/Program Files/Google/Chrome/Application/chrome.exe\"",
     );
+  });
+
+  it("resolves relative explicit executables from rootDir and preserves absolute paths", () => {
+    const relative = locateVivliostyle(rootDir, "package.json");
+    const absolutePath = resolve(rootDir, "package.json");
+    const absolute = locateVivliostyle(rootDir, absolutePath);
+
+    expect(relative.command).toBe(absolutePath);
+    expect(absolute.command).toBe(absolutePath);
   });
 });

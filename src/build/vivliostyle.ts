@@ -1,6 +1,6 @@
 import { existsSync } from "node:fs";
 import { spawnSync } from "node:child_process";
-import { join, resolve } from "node:path";
+import { isAbsolute, join, resolve } from "node:path";
 
 import { BuildFailure, buildDiagnostic } from "./diagnostics.js";
 import { normalizeSlashes, repoRelativePath, resolveExistingRepoPath } from "./filesystem.js";
@@ -72,7 +72,8 @@ function isRunnableCandidate(candidate: VivliostyleExecutable): boolean {
 
 export function locateVivliostyle(rootDir: string, explicitPath?: string): VivliostyleExecutable {
   if (explicitPath) {
-    const candidate: VivliostyleExecutable = { command: explicitPath, prefixArgs: [], label: explicitPath };
+    const command = isAbsolute(explicitPath) ? explicitPath : resolve(rootDir, explicitPath);
+    const candidate: VivliostyleExecutable = { command, prefixArgs: [], label: explicitPath };
     if (!isRunnableCandidate(candidate)) {
       throw new BuildFailure([buildDiagnostic(explicitPath, "VIVLIOSTYLE_NOT_FOUND", "The configured Vivliostyle executable does not exist.", "pdf")]);
     }
