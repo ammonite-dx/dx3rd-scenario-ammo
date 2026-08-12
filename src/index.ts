@@ -16,6 +16,19 @@ export {
   validateScenarioMarkdown,
 } from "./core/parser.js";
 
+export {
+  isEnemyDataParseSuccess,
+  parseEnemyDataYaml,
+  validateEnemyDataYaml,
+} from "./data/enemy.js";
+
+export {
+  extractDataReferences,
+  extractEnemyDataReferences,
+  resolveDataReferences,
+  resolveEnemyDataReferences,
+} from "./data/references.js";
+
 export type {
   BattleBlock,
   CheckBlock,
@@ -43,3 +56,40 @@ export type {
   SourcePoint,
   SourcePosition,
 } from "./core/types.js";
+
+export {
+  ENEMY_DATA_SCHEMA,
+  ENEMY_DATA_VERSION,
+} from "./data/types.js";
+
+export type {
+  AbilitiesData,
+  ComboData,
+  ComboEffectData,
+  DataDiagnostic,
+  DataReferenceExtractionResult,
+  DataReferenceKind,
+  DataReferenceResolutionFailure,
+  DataReferenceResolutionResult,
+  DataReferenceResolutionSuccess,
+  DLoisData,
+  ELoisData,
+  EffectData,
+  EncroachmentData,
+  EnemyData,
+  EnemyDataDocument,
+  EnemyDataParseFailure,
+  EnemyDataParseResult,
+  EnemyDataParseSuccess,
+  EnemyDataReference,
+  EnemyDataSource,
+  EnemyDataSourceLoader,
+  EnemyDataSourceLoaderObject,
+  ItemData,
+  LoisData,
+  MarkdownReferenceInput,
+  PrimaryAbilityData,
+  ResolvedEnemyDataReference,
+  SecondaryAbilityData,
+  SkillData,
+} from "./data/types.js";
