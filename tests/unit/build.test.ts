@@ -54,59 +54,32 @@ describe("publication build preparation", () => {
 });
 
 describe("Vivliostyle CLI argument construction", () => {
-  const common = {
-    prefixArgs: [] as const,
-    themeRelative: "themes/scenario-a5/theme.css",
-    inputRelative: "generated/html/publication.html",
-    outputRelative: "generated/pdf/publication.pdf",
-  };
-
-  it("keeps the default config, A5 size, browser flag, and input in valid order", () => {
+  it("passes only the explicit config and log level without duplicate build inputs", () => {
     expect(buildVivliostyleArgs({
-      ...common,
-      configRelative: "vivliostyle.config.js",
-      paper: "a5",
-      browser: "C:/Program Files/Google/Chrome/Application/chrome.exe",
-    })).toEqual([
-      "build",
-      "--log-level",
-      "info",
-      "--output",
-      "generated/pdf/publication.pdf",
-      "--format",
-      "pdf",
-      "--size",
-      "A5",
-      "--single-doc",
-      "--theme",
-      "themes/scenario-a5/theme.css",
-      "--executable-browser",
-      "C:/Program Files/Google/Chrome/Application/chrome.exe",
-      "generated/html/publication.html",
-    ]);
-  });
-
-  it("places a non-default config immediately after build and omits absent browser", () => {
-    expect(buildVivliostyleArgs({
-      ...common,
-      configRelative: "configs/custom-vivliostyle.js",
-      paper: "a4",
+      prefixArgs: [],
+      configRelative: ".vivliostyle.config.js.123.js",
     })).toEqual([
       "build",
       "--config",
-      "configs/custom-vivliostyle.js",
+      ".vivliostyle.config.js.123.js",
       "--log-level",
       "info",
-      "--output",
-      "generated/pdf/publication.pdf",
-      "--format",
-      "pdf",
-      "--size",
-      "A4",
-      "--single-doc",
-      "--theme",
-      "themes/scenario-a5/theme.css",
-      "generated/html/publication.html",
+    ]);
+  });
+
+  it("adds only the executable browser option when configured", () => {
+    expect(buildVivliostyleArgs({
+      prefixArgs: [],
+      configRelative: ".vivliostyle.config.js.123.js",
+      browser: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    })).toEqual([
+      "build",
+      "--config",
+      ".vivliostyle.config.js.123.js",
+      "--log-level",
+      "info",
+      "--executable-browser",
+      "C:/Program Files/Google/Chrome/Application/chrome.exe",
     ]);
   });
 

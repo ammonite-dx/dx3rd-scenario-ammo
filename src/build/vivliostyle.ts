@@ -4,7 +4,6 @@ import { isAbsolute, join, resolve } from "node:path";
 
 import { BuildFailure, buildDiagnostic } from "./diagnostics.js";
 import { normalizeSlashes, repoRelativePath, resolveExistingRepoPath } from "./filesystem.js";
-import type { PaperSize } from "./types.js";
 
 export interface VivliostyleExecutable {
   command: string;
@@ -15,43 +14,24 @@ export interface VivliostyleExecutable {
 export interface VivliostyleBuildOptions {
   rootDir: string;
   executable: VivliostyleExecutable;
-  inputHtml: string;
-  outputPdf: string;
-  themePath: string;
   configPath: string;
-  paper: PaperSize;
 }
 
 export interface VivliostyleArgOptions {
   prefixArgs: readonly string[];
   configRelative: string;
-  themeRelative: string;
-  inputRelative: string;
-  outputRelative: string;
-  paper: PaperSize;
   browser?: string;
 }
 
 export function buildVivliostyleArgs(options: VivliostyleArgOptions): string[] {
   const args = [...options.prefixArgs, "build"];
-  if (options.configRelative !== "vivliostyle.config.js") {
-    args.push("--config", options.configRelative);
-  }
   args.push(
+    "--config",
+    options.configRelative,
     "--log-level",
     "info",
-    "--output",
-    options.outputRelative,
-    "--format",
-    "pdf",
-    "--size",
-    options.paper.toUpperCase(),
-    "--single-doc",
-    "--theme",
-    options.themeRelative,
   );
   if (options.browser) args.push("--executable-browser", options.browser);
-  args.push(options.inputRelative);
   return args;
 }
 
@@ -120,17 +100,10 @@ export function buildWindowsCommandLine(command: string, args: readonly string[]
 export function runVivliostyle(options: VivliostyleBuildOptions): void {
   const configPath = resolveExistingRepoPath(options.rootDir, options.configPath, "Vivliostyle config");
   const configRelative = repoRelativePath(options.rootDir, configPath);
-  const themeRelative = repoRelativePath(options.rootDir, options.themePath);
-  const inputRelative = repoRelativePath(options.rootDir, options.inputHtml);
-  const outputRelative = repoRelativePath(options.rootDir, options.outputPdf);
   const browser = chromeExecutable();
   const args = buildVivliostyleArgs({
     prefixArgs: options.executable.prefixArgs,
     configRelative,
-    themeRelative,
-    inputRelative,
-    outputRelative,
-    paper: options.paper,
     ...(browser ? { browser } : {}),
   });
 

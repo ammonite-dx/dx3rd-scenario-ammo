@@ -136,11 +136,7 @@ export function buildPdf(options: PdfBuildOptions): string {
     runVivliostyle({
       rootDir: options.rootDir,
       executable,
-      inputHtml: htmlStage,
-      outputPdf: pdfStage,
-      themePath: options.publication.themePath,
       configPath: repoRelativePath(options.rootDir, configStage),
-      paper: options.paper,
     });
     if (!existsSync(pdfStage)) {
       throw new BuildFailure([buildDiagnostic(pdfStage, "PDF_OUTPUT_MISSING", "Vivliostyle completed without producing a PDF.", "pdf")]);
