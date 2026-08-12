@@ -1,0 +1,104 @@
+import { join } from "node:path";
+
+import { describe, expect, it } from "vitest";
+
+import { readBuildConfig } from "../../src/build/config.js";
+import { preparePublication } from "../../src/build/publication.js";
+import { buildVivliostyleArgs } from "../../src/build/vivliostyle.js";
+
+const rootDir = process.cwd();
+
+describe("publication build preparation", () => {
+  it("uses the explicit four-chapter order and resolves structured data", () => {
+    const result = readBuildConfig(join(rootDir, "build.config.json"));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    expect(result.config.chapters).toEqual([
+      "manuscripts/sample/01-opening.md",
+      "manuscripts/sample/02-traces.md",
+      "manuscripts/sample/03-resonance.md",
+      "manuscripts/sample/04-climax.md",
+    ]);
+
+    const publication = preparePublication(rootDir, result.config, "a5", "tmp/unit-publication/sample.html");
+    expect(publication.chapters).toHaveLength(4);
+    expect(publication.html).toContain('data-paper="a5"');
+    expect(publication.html).toContain('href="../../themes/scenario-a5/theme.css"');
+    expect(publication.html).toContain('data-data-kind="enemy"');
+    expect(publication.html).toContain('data-data-kind="combo"');
+
+    const chapterPositions = ["SAMPLE-01", "SAMPLE-02", "SAMPLE-03", "SAMPLE-04"]
+      .map((id) => publication.html.indexOf(`data-document-id="${id}"`));
+    expect(chapterPositions.every((position) => position >= 0)).toBe(true);
+    expect(chapterPositions).toEqual([...chapterPositions].sort((left, right) => left - right));
+  });
+
+  it("switches the publication theme and paper metadata to A4", () => {
+    const result = readBuildConfig(join(rootDir, "build.config.json"));
+    expect(result.ok).toBe(true);
+    if (!result.ok) return;
+
+    const publication = preparePublication(rootDir, result.config, "a4", "tmp/unit-publication/sample-a4.html");
+    expect(publication.html).toContain('data-paper="a4"');
+    expect(publication.html).toContain('href="../../themes/scenario-a5/theme-a4.css"');
+  });
+});
+
+describe("Vivliostyle CLI argument construction", () => {
+  const common = {
+    prefixArgs: [] as const,
+    themeRelative: "themes/scenario-a5/theme.css",
+    inputRelative: "generated/html/publication.html",
+    outputRelative: "generated/pdf/publication.pdf",
+  };
+
+  it("keeps the default config, A5 size, browser flag, and input in valid order", () => {
+    expect(buildVivliostyleArgs({
+      ...common,
+      configRelative: "vivliostyle.config.js",
+      paper: "a5",
+      browser: "C:/Program Files/Google/Chrome/Application/chrome.exe",
+    })).toEqual([
+      "build",
+      "--log-level",
+      "info",
+      "--output",
+      "generated/pdf/publication.pdf",
+      "--format",
+      "pdf",
+      "--size",
+      "A5",
+      "--single-doc",
+      "--theme",
+      "themes/scenario-a5/theme.css",
+      "--executable-browser",
+      "C:/Program Files/Google/Chrome/Application/chrome.exe",
+      "generated/html/publication.html",
+    ]);
+  });
+
+  it("places a non-default config immediately after build and omits absent browser", () => {
+    expect(buildVivliostyleArgs({
+      ...common,
+      configRelative: "configs/custom-vivliostyle.js",
+      paper: "a4",
+    })).toEqual([
+      "build",
+      "--config",
+      "configs/custom-vivliostyle.js",
+      "--log-level",
+      "info",
+      "--output",
+      "generated/pdf/publication.pdf",
+      "--format",
+      "pdf",
+      "--size",
+      "A4",
+      "--single-doc",
+      "--theme",
+      "themes/scenario-a5/theme.css",
+      "generated/html/publication.html",
+    ]);
+  });
+});

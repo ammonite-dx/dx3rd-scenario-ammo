@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .vivliostyle/
+generated/
 coverage/
 test-results/
 tmp/

@@ -11,8 +11,11 @@
   "packageManager": "npm@10.9.8",
   "scripts": {
     "typecheck": "tsc --noEmit",
-    "test": "vitest run",
-    "test:watch": "vitest"
+    "test": "npm run build:cli && vitest run",
+    "test:watch": "vitest",
+    "build:cli": "tsc -p tsconfig.build.json",
+    "build:html": "npm run build:cli && node dist/cli/main.js build html",
+    "build:pdf": "npm run build:cli && node dist/cli/main.js build pdf"
   },
   "dependencies": {
     "remark-frontmatter": "5.0.0",

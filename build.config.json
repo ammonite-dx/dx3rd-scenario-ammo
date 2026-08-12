@@ -1,0 +1,22 @@
+{
+  "title": "DX3rd Scenario Sample",
+  "chapters": [
+    "manuscripts/sample/01-opening.md",
+    "manuscripts/sample/02-traces.md",
+    "manuscripts/sample/03-resonance.md",
+    "manuscripts/sample/04-climax.md"
+  ],
+  "themes": {
+    "a5": "themes/scenario-a5/theme.css",
+    "a4": "themes/scenario-a5/theme-a4.css"
+  },
+  "output": {
+    "html": "generated/html/sample-publication.html",
+    "pdf": {
+      "a5": "generated/pdf/sample-a5.pdf",
+      "a4": "generated/pdf/sample-a4.pdf"
+    }
+  },
+  "vivliostyleConfig": "vivliostyle.config.js",
+  "workspaceDir": "generated/.vivliostyle"
+}
