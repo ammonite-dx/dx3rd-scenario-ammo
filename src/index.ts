@@ -93,3 +93,30 @@ export type {
   SecondaryAbilityData,
   SkillData,
 } from "./data/types.js";
+
+export {
+  HTML_CONTRACT,
+  generateScenarioHtml,
+  renderScenarioHtml,
+  renderScenarioHtmlDocument,
+  renderScenarioHtmlFragment,
+  renderScenarioHtmlOrThrow,
+} from "./html/renderer.js";
+
+export {
+  HtmlRenderError,
+  isHtmlRenderSuccess,
+} from "./html/types.js";
+
+export type {
+  HtmlDiagnostic,
+  HtmlDiagnosticCategory,
+  HtmlNodeContext,
+  HtmlReferenceExpansion,
+  HtmlRenderFailure,
+  HtmlRenderInput,
+  HtmlRenderMode,
+  HtmlRenderOptions,
+  HtmlRenderResult,
+  HtmlRenderSuccess,
+} from "./html/types.js";
