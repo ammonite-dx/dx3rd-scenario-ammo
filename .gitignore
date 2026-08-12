@@ -1,0 +1,7 @@
+node_modules/
+dist/
+.vivliostyle/
+coverage/
+test-results/
+tmp/
+*.tsbuildinfo
