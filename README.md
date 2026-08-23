@@ -38,3 +38,14 @@ PDFビルドは、生成HTML内のTheme linkをローカルの境界サーバー
 Chrome sandboxは通常有効です。制限環境で起動できない場合だけ `VIVLIOSTYLE_NO_SANDBOX=1` を明示して再試行してください。値が `1` の場合だけ `--no-sandbox` を追加します。sandboxを無効化するため、通常の環境では設定不要です。
 
 `generated/`、`dist/`、`tmp/` などの生成物は `.gitignore` 対象です。詳細な設計と診断は [docs/workflow.md](docs/workflow.md)、要件の達成状況は [docs/requirements.md](docs/requirements.md) を参照してください。
+
+## gift旧原稿の一回限り移行
+
+旧 `gift/` を現行の通常Markdownと外部敵YAMLへ移す場合だけ、明示的に次を実行します。
+
+```text
+npm run migrate:gift -- --source gift --output tmp/gift-migration
+npm run migrate:gift -- --source gift --output tmp/gift-migration --dry-run
+```
+
+出力は新規の `tmp/` 配下へ公開され、既存出力や `gift/`・`manuscripts/`・`data/` の上書きは拒否されます。`migration-report.json` と `migration-report.md` の `partial`、`failed`、未解決診断をレビューし、変換後のMarkdown/YAMLを通常parser・validator・buildで確認してから採用してください。対応表と実giftの棚卸しは [docs/migration-from-gift.md](docs/migration-from-gift.md) にあります。

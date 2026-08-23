@@ -76,6 +76,25 @@ PDF検証のPython依存は `requirements-pdf.txt` に固定しています。�
 `PDF_PYTHON` に実行ファイルを指定してください。検証用のPNGは `generated/` または
 `tmp/` に置き、リポジトリへ追加しません。
 
+## gift旧原稿の一回限り移行
+
+旧 `gift/` を参照専用の入力として明示起動する場合は、次を使います。
+
+```text
+npm run migrate:gift -- --source gift --output tmp/gift-migration
+npm run migrate:gift -- --source gift --output tmp/gift-migration --dry-run
+```
+
+この入口だけがgift旧記法を読み、通常のbuild経路には互換構文を追加しません。出力は
+新規ディレクトリへステージしてから公開され、絶対パス、traversal、symlink root逸脱、
+source/outputの重なり、既存出力、`gift/`・`manuscripts/`・`data/` 配下への出力を拒否
+します。変換後の各Markdownは現行parserへ、契約を満たす敵YAMLはvalidatorと参照解決へ
+通し、`migration-report.json` と `migration-report.md` に成功、warning、未解決、失敗を
+記録します。未解決または失敗がある場合、CLIは終了コード1を返します。
+
+対応表、実giftの旧記法件数、`_postReplaceList.json` との突合、レビューと採用手順は
+[docs/migration-from-gift.md](migration-from-gift.md) を参照してください。
+
 ## 出力とトラブルシュート
 
 - HTML: `generated/html/`

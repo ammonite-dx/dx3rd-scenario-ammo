@@ -100,7 +100,7 @@ dist/ や .vivliostyle/ がまだ存在しない段階でも、正本入力を�
     │   ├── cli/
     │   │   ├── build.js
     │   │   └── preview.js
-    │   └── migration/                       # [後続] 明示起動するlegacy移行
+    │   └── migration/                       # [現行] 明示起動する一回限りのlegacy移行
     ├── manuscripts/                         # [現行]
     │   └── sample/                          # 4章の実用シナリオ
     ├── data/                                # [現行] canonical source、Git追跡
@@ -159,7 +159,7 @@ tests/fixtures/ は実装の都合で書き換えず、入力契約として追�
 - valid/ は正常な章文書と記法の入力を固定する。11-kitchen-sink.md は構文網羅・スモーク用であり、実用シナリオの章構成を表さない。
 - invalid/ は未知ブロック、閉じ忘れ、frontmatter、H1、フィールド、属性リスト、入れ子、敵・コンボ本文ブロックなどの診断対象を固定する。
 - tests/fixtures/data/enemies/ はfixtureだけが使う外部YAMLを置く。ルートの data/enemies/ とは正本の境界を分ける。
-- migration/ と legacy/ は現時点では未配置であり、移行対象を選定した後に必要最小限の入力と期待する新Markdownを追加する。
+- `tests/fixtures/migration/` と `tests/fixtures/legacy-gift/` は、複合・曖昧・壊れたフェンスと敵YAML移行の最小入力を固定する。
 - 画像fixtureとvisual testは後続段階で追加し、画像のない現行入力を無理に画像回帰へ変えない。
 
 unit/ と integration/ も実装段階で追加する。buildとpreviewは同じAST解析・検証・意味変換を共有し、gift/ を入力探索先にしない。
@@ -178,7 +178,7 @@ gift/ は旧プロジェクトの参照・移行元として、legacy移行が�
 
 - 通常のroot build・previewは gift/、その設定、旧HTML、旧PDF、旧作業領域を読まない。
 - gift/ のMarkdownやHTMLを新しい manuscripts/ の正本へ手でコピー・上書きしない。
-- 旧入力を移行するときは、対象を tests/fixtures/legacy/ に最小限固定し、期待するMarkdownと外部YAMLリンクを tests/fixtures/migration/ でレビュー可能にする。
+- 旧入力を移行するときは、対象を `tests/fixtures/legacy-gift/` に最小限固定し、期待するMarkdownと外部YAMLリンクを `tests/fixtures/migration/` でレビュー可能にする。
 - 移行ツールは明示起動し、曖昧な旧入力を推測でbuildへ通さない。移行後のMarkdownは通常のroot buildで検証する。
 - gift/ の縮小・移動・生成物整理は、legacy fixture、移行結果、視覚比較、ライセンスを確認した独立コミットで行う。
 
@@ -220,7 +220,7 @@ docs/、tests/、manuscripts/、ルート data/ はすでに作成済みの入�
 | 3. 変換・生成 | src/cli/、意味的HTML、dist/html/の生成経路を接続 | buildとpreviewが同じHTMLを使い、JSONをYAML正本と誤認しない | build/previewの実装 |
 | 4. A5組版 | themes/a5/、root configのA5設定、必要なフォント | Markdown・YAML・意味的HTMLを変更せずA5 PDFを生成 | A5 Themeと受入確認 |
 | 5. 画像・visual | 実在する画像資産、tests/visual/、承認済みスナップショットを必要な範囲だけ追加 | ライセンス、オフライン解決、画像なし現行サンプルとの責務を分離 | 後続のvisual変更 |
-| 6. legacy移行 | tests/fixtures/legacy/、tests/fixtures/migration/、明示起動の移行コード | gift由来の曖昧さを診断し、移行後のMarkdownを通常buildで再検証 | 移行fixtureと移行ツール |
+| 6. legacy移行 | `tests/fixtures/legacy-gift/`、`tests/fixtures/migration/`、`src/migration/`、`migrate:gift` | gift由来の曖昧さを診断し、移行後のMarkdownを通常buildで再検証 | 移行fixtureと移行ツール |
 | 7. gift整理 | 必要な回帰入力と比較資料を分離し、不要な旧作業状態・生成物を整理 | 通常のbuild、preview、test、visualがgift/を参照しない | legacy整理だけ |
 
 段階1〜4では、既存の正本・fixtureを実装の受け入れ入力として利用する。段階5の画像fixture・visual testは現行サンプルを変更しない後続段階とする。段階6のlegacy移行は通常buildへ互換層を戻す作業ではない。
