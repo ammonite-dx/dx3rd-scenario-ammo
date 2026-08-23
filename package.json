@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "npm run build:cli && vitest run",
     "test:python": "node scripts/run-python-tests.mjs",
+    "migrate:gift": "npm run build:cli && node dist/cli/main.js migrate gift",
     "test:watch": "vitest",
     "build:cli": "tsc -p tsconfig.build.json",
     "build:html": "npm run build:cli && node dist/cli/main.js build html",

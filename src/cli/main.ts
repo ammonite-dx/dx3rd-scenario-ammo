@@ -7,13 +7,18 @@ import { repositoryRoot, repoRelativePath, resolveExistingRepoPath, resolveOutpu
 import { buildPdf } from "../build/pdf.js";
 import { preparePublication, writePreparedHtml } from "../build/publication.js";
 import type { PaperSize } from "../build/types.js";
+import {
+  formatMigrationDiagnostics,
+  GiftMigrationFailure,
+  runGiftMigration,
+} from "../migration/index.js";
 
 export interface CliIO {
   stdout: (value: string) => void;
   stderr: (value: string) => void;
 }
 
-interface ParsedCli {
+interface ParsedBuildCli {
   command: "html" | "pdf";
   configPath: string;
   paper: PaperSize;
@@ -21,12 +26,24 @@ interface ParsedCli {
   vivliostylePath?: string;
 }
 
+interface ParsedMigrationCli {
+  command: "migrate";
+  migrationKind: "gift";
+  sourcePath: string;
+  outputPath?: string;
+  dryRun: boolean;
+}
+
+type ParsedCli = ParsedBuildCli | ParsedMigrationCli;
+
 const HELP = `Usage: npm run build:html -- [options]
        npm run build:pdf -- [options]
+       npm run migrate:gift -- [--source gift] [--output tmp/gift-migration]
 
 Commands:
   build html       Validate chapters and write one semantic HTML publication
   build pdf        Build the semantic HTML, then typeset it with official Vivliostyle Core
+  migrate gift     Convert gift legacy Markdown to current Markdown/YAML in a new output directory
 
 Options:
   -c, --config <path>          Ordered build configuration (default: build.config.json)
@@ -38,6 +55,7 @@ Options:
 The configuration's chapters array is the only chapter ordering source; no glob is used.
 The PDF adapter awaits CoreViewer completion before Puppeteer writes the PDF.
 Outputs are staged and published atomically under generated/ by default.
+The gift migration refuses existing/protected outputs; its default output is tmp/gift-migration.
 `;
 
 function defaultIO(): CliIO {
@@ -62,6 +80,42 @@ function requireValue(args: readonly string[], index: number, option: string): s
 
 function parseArgs(args: readonly string[], rootDir: string, io: CliIO): ParsedCli | "help" {
   if (args.length === 0 || args.includes("--help") || args.includes("-h")) return "help";
+  if (args[0] === "migrate") {
+    if (args[1] !== "gift") {
+      throw new BuildFailure([buildDiagnostic("<cli>", "CLI_MIGRATION_KIND_INVALID", "Use migrate gift.", "cli")]);
+    }
+    let sourcePath = "gift";
+    let outputPath: string | undefined;
+    let dryRun = false;
+    for (let index = 2; index < args.length; index += 1) {
+      const argument = args[index];
+      if (!argument) continue;
+      if (argument === "--source") {
+        sourcePath = requireValue(args, index, argument);
+        index += 1;
+        continue;
+      }
+      if (argument === "--output" || argument === "-o") {
+        outputPath = requireValue(args, index, argument);
+        index += 1;
+        continue;
+      }
+      if (argument === "--dry-run") {
+        dryRun = true;
+        continue;
+      }
+      throw new BuildFailure([buildDiagnostic("<cli>", "CLI_UNKNOWN_OPTION", `Unknown option: ${argument}.`, "cli")]);
+    }
+    void rootDir;
+    void io;
+    return {
+      command: "migrate",
+      migrationKind: "gift",
+      sourcePath,
+      ...(outputPath ? { outputPath } : {}),
+      dryRun,
+    };
+  }
   if (args[0] !== "build" || (args[1] !== "html" && args[1] !== "pdf")) {
     throw new BuildFailure([buildDiagnostic("<cli>", "CLI_COMMAND_INVALID", "Use build html or build pdf.", "cli")]);
   }
@@ -105,6 +159,11 @@ function parseArgs(args: readonly string[], rootDir: string, io: CliIO): ParsedC
 }
 
 function writeFailure(io: CliIO, error: unknown): number {
+  if (error instanceof GiftMigrationFailure) {
+    const text = formatMigrationDiagnostics(error.diagnostics);
+    if (text.length > 0) io.stderr(`${text}\n`);
+    return 1;
+  }
   const diagnostics = error instanceof BuildFailure
     ? error.diagnostics
     : [buildDiagnostic("<cli>", "CLI_UNEXPECTED_ERROR", error instanceof Error ? error.message : "Unexpected CLI failure.", "cli")];
@@ -121,6 +180,19 @@ export async function runCli(args: readonly string[], context: { cwd?: string; i
     if (parsed === "help") {
       io.stdout(HELP);
       return 0;
+    }
+
+    if (parsed.command === "migrate") {
+      const result = await runGiftMigration({
+        rootDir,
+        sourcePath: parsed.sourcePath,
+        ...(parsed.outputPath ? { outputPath: parsed.outputPath } : {}),
+        dryRun: parsed.dryRun,
+      });
+      const summary = result.report.summary;
+      const output = result.published ? ` output=${result.outputPath}` : " dry-run";
+      io.stdout(`Gift migration complete:${output} markdown=${summary.convertedMarkdownFiles} parser=${summary.parserValidatedMarkdownFiles}/${summary.convertedMarkdownFiles} complete=${summary.successfulMarkdownFiles} partial=${summary.partialMarkdownFiles} failed=${summary.failedMarkdownFiles} yaml=${summary.validatedYamlFiles}/${summary.generatedYamlFiles} unresolved=${summary.unresolvedDiagnosticCount} warnings=${summary.warningCount}\n`);
+      return summary.failedMarkdownFiles > 0 || summary.partialMarkdownFiles > 0 || summary.invalidYamlFiles > 0 || summary.unresolvedDiagnosticCount > 0 || summary.errorCount > 0 ? 1 : 0;
     }
 
     const configFile = resolveExistingRepoPath(rootDir, parsed.configPath, "Build configuration");
