@@ -16,6 +16,13 @@ SPEC.loader.exec_module(VERIFY_PDF)
 
 
 class VerifyPdfTextComparisonTests(unittest.TestCase):
+    def test_pinned_pdf_dependencies_are_importable(self) -> None:
+        import pdfplumber
+        import pypdf
+
+        self.assertTrue(pypdf.__version__)
+        self.assertTrue(pdfplumber.__version__)
+
     def test_nfkc_maps_cjk_radical_supplement_to_standard_kanji(self) -> None:
         self.assertEqual(VERIFY_PDF.normalize_for_comparison("\u2fac\u2fb3"), "雨音")
 

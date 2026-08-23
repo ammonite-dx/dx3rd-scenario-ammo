@@ -17,8 +17,8 @@ import { locateVivliostyle, runVivliostyle } from "./vivliostyle.js";
 
 export interface PdfBuildOptions {
   rootDir: string;
-  vivliostyleConfigPath: string;
-  workspaceDir: string;
+  vivliostyleConfigPath?: string;
+  workspaceDir?: string;
   publication: PreparedPublication;
   pdfPath: string;
   paper: PaperSize;
@@ -42,7 +42,7 @@ export function buildStagedVivliostyleConfig(
   const theme = normalizeSlashes(repoRelativePath(rootDir, themePath));
   const workspace = normalizeSlashes(repoRelativePath(rootDir, workspaceDir));
   return `export default ${JSON.stringify({
-    entry,
+    entry: [entry],
     entryContext: ".",
     theme,
     size: paper.toUpperCase(),
@@ -56,6 +56,7 @@ function pythonCandidates(): Array<{ command: string; prefix: string[] }> {
   if (configured) return [{ command: configured, prefix: [] }];
   return [
     { command: "python", prefix: [] },
+    { command: "python3", prefix: [] },
     { command: "py", prefix: ["-3"] },
   ];
 }
@@ -117,26 +118,46 @@ function verifyPdf(
   )]);
 }
 
-export function buildPdf(options: PdfBuildOptions): string {
-  resolveExistingRepoPath(options.rootDir, options.vivliostyleConfigPath, "Vivliostyle config");
+export async function buildPdf(options: PdfBuildOptions): Promise<string> {
+  const externalPath = options.vivliostylePath ?? process.env.VIVLIOSTYLE_BIN;
+  const executable = externalPath
+    ? locateVivliostyle(options.rootDir, externalPath)
+    : undefined;
+  if (executable && (!options.vivliostyleConfigPath || !options.workspaceDir)) {
+    throw new BuildFailure([buildDiagnostic(
+      "<vivliostyle>",
+      "VIVLIOSTYLE_COMPAT_CONFIG_REQUIRED",
+      "The explicit external Vivliostyle path requires vivliostyleConfigPath and workspaceDir.",
+      "pdf",
+    )]);
+  }
+  if (executable && options.vivliostyleConfigPath) {
+    resolveExistingRepoPath(options.rootDir, options.vivliostyleConfigPath, "Vivliostyle config");
+  }
   const htmlStage = createTempPath(options.publication.htmlPath, ".html");
   const pdfStage = createTempPath(options.pdfPath, ".pdf");
-  const configStage = createTempPath(vivliostyleConfigStageBasePath(options.rootDir), ".js");
+  const configStage = executable
+    ? createTempPath(vivliostyleConfigStageBasePath(options.rootDir), ".js")
+    : undefined;
   try {
     writeTextFile(htmlStage, options.publication.html);
-    writeTextFile(configStage, buildStagedVivliostyleConfig(
-      options.rootDir,
-      htmlStage,
-      pdfStage,
-      options.publication.themePath,
-      options.workspaceDir,
-      options.paper,
-    ));
-    const executable = locateVivliostyle(options.rootDir, options.vivliostylePath);
-    runVivliostyle({
+    if (configStage && options.workspaceDir) {
+      writeTextFile(configStage, buildStagedVivliostyleConfig(
+        options.rootDir,
+        htmlStage,
+        pdfStage,
+        options.publication.themePath,
+        options.workspaceDir,
+        options.paper,
+      ));
+    }
+    await runVivliostyle({
       rootDir: options.rootDir,
-      executable,
-      configPath: repoRelativePath(options.rootDir, configStage),
+      ...(executable ? { executable } : {}),
+      ...(configStage ? { configPath: repoRelativePath(options.rootDir, configStage) } : {}),
+      htmlPath: repoRelativePath(options.rootDir, htmlStage),
+      pdfPath: repoRelativePath(options.rootDir, pdfStage),
+      paper: options.paper,
     });
     if (!existsSync(pdfStage)) {
       throw new BuildFailure([buildDiagnostic(pdfStage, "PDF_OUTPUT_MISSING", "Vivliostyle completed without producing a PDF.", "pdf")]);
@@ -156,6 +177,6 @@ export function buildPdf(options: PdfBuildOptions): string {
       "pdf",
     )]);
   } finally {
-    removeIfExists(configStage);
+    if (configStage) removeIfExists(configStage);
   }
 }

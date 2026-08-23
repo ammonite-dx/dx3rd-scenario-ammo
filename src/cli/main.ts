@@ -26,7 +26,7 @@ const HELP = `Usage: npm run build:html -- [options]
 
 Commands:
   build html       Validate chapters and write one semantic HTML publication
-  build pdf        Build the semantic HTML, then invoke the official Vivliostyle CLI
+  build pdf        Build the semantic HTML, then typeset it with official Vivliostyle Core
 
 Options:
   -c, --config <path>          Ordered build configuration (default: build.config.json)
@@ -36,6 +36,7 @@ Options:
   -h, --help                   Show this help
 
 The configuration's chapters array is the only chapter ordering source; no glob is used.
+The PDF adapter awaits CoreViewer completion before Puppeteer writes the PDF.
 Outputs are staged and published atomically under generated/ by default.
 `;
 
@@ -112,7 +113,7 @@ function writeFailure(io: CliIO, error: unknown): number {
   return 1;
 }
 
-export function runCli(args: readonly string[], context: { cwd?: string; io?: CliIO } = {}): number {
+export async function runCli(args: readonly string[], context: { cwd?: string; io?: CliIO } = {}): Promise<number> {
   const io = context.io ?? defaultIO();
   const rootDir = repositoryRoot(context.cwd ?? process.cwd());
   try {
@@ -139,12 +140,17 @@ export function runCli(args: readonly string[], context: { cwd?: string; io?: Cl
     const htmlPath = resolveOutputRepoPath(rootDir, config.output.html, "HTML output");
     const publication = preparePublication(rootDir, config, parsed.paper, repoRelativePath(rootDir, htmlPath));
     const pdfPath = resolveOutputRepoPath(rootDir, parsed.outputPath ?? config.output.pdf[parsed.paper], "PDF output");
-    const vivliostyleConfigPath = resolveExistingRepoPath(rootDir, config.vivliostyleConfig, "Vivliostyle config");
-    const workspacePath = resolveOutputRepoPath(rootDir, config.workspaceDir, "Vivliostyle workspace");
-    const result = buildPdf({
+    const externalVivliostylePath = parsed.vivliostylePath ?? process.env.VIVLIOSTYLE_BIN;
+    const vivliostyleConfigPath = externalVivliostylePath
+      ? resolveExistingRepoPath(rootDir, config.vivliostyleConfig, "Vivliostyle config")
+      : undefined;
+    const workspacePath = externalVivliostylePath
+      ? resolveOutputRepoPath(rootDir, config.workspaceDir, "Vivliostyle workspace")
+      : undefined;
+    const result = await buildPdf({
       rootDir,
-      vivliostyleConfigPath: repoRelativePath(rootDir, vivliostyleConfigPath),
-      workspaceDir: workspacePath,
+      ...(vivliostyleConfigPath ? { vivliostyleConfigPath: repoRelativePath(rootDir, vivliostyleConfigPath) } : {}),
+      ...(workspacePath ? { workspaceDir: workspacePath } : {}),
       publication,
       pdfPath,
       paper: parsed.paper,
@@ -159,5 +165,5 @@ export function runCli(args: readonly string[], context: { cwd?: string; io?: Cl
 
 const invokedPath = process.argv[1] ? resolve(process.argv[1]) : "";
 if (invokedPath === resolve(fileURLToPath(import.meta.url))) {
-  process.exitCode = runCli(process.argv.slice(2));
+  process.exitCode = await runCli(process.argv.slice(2));
 }

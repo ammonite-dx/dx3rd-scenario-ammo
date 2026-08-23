@@ -53,9 +53,9 @@ function writeConfig(directory: string, chapter: string, outputName: string): st
   return relativeToRoot(configPath);
 }
 
-function runCaptured(args: string[]): CapturedRun {
+async function runCaptured(args: string[]): Promise<CapturedRun> {
   const captured = captureCli();
-  const code = runCli(args, { cwd: rootDir, io: captured.io });
+  const code = await runCli(args, { cwd: rootDir, io: captured.io });
   const output = captured.read();
   return { code, ...output };
 }
@@ -68,12 +68,12 @@ afterEach(() => {
 });
 
 describe("build CLI", () => {
-  it("writes ordered HTML and keeps normal logs separate from diagnostics", () => {
+  it("writes ordered HTML and keeps normal logs separate from diagnostics", async () => {
     mkdirSync(join(rootDir, "tmp"), { recursive: true });
     const directory = mkdtempSync(join(rootDir, "tmp", "build-integration-"));
     temporaryRoots.push(directory);
     const config = writeConfig(directory, "manuscripts/sample/01-opening.md", "build-integration-valid");
-    const result = runCaptured(["build", "html", "--config", config]);
+    const result = await runCaptured(["build", "html", "--config", config]);
     const outputPath = join(directory, "build-integration-valid.html");
 
     expect(result.code).toBe(0);
@@ -83,12 +83,12 @@ describe("build CLI", () => {
     expect(readFileSync(outputPath, "utf8")).toContain('data-document-id="SAMPLE-01"');
   });
 
-  it("returns a positioned diagnostic and leaves no HTML for invalid Markdown", () => {
+  it("returns a positioned diagnostic and leaves no HTML for invalid Markdown", async () => {
     mkdirSync(join(rootDir, "tmp"), { recursive: true });
     const directory = mkdtempSync(join(rootDir, "tmp", "build-integration-"));
     temporaryRoots.push(directory);
     const config = writeConfig(directory, "tests/fixtures/invalid/15-raw-html.md", "build-integration-invalid");
-    const result = runCaptured(["build", "html", "--config", config]);
+    const result = await runCaptured(["build", "html", "--config", config]);
     const outputPath = join(directory, "build-integration-invalid.html");
 
     expect(result.code).not.toBe(0);
@@ -97,24 +97,24 @@ describe("build CLI", () => {
     expect(existsSync(outputPath)).toBe(false);
   });
 
-  it("rejects traversal in a configured chapter before reading outside the repository", () => {
+  it("rejects traversal in a configured chapter before reading outside the repository", async () => {
     mkdirSync(join(rootDir, "tmp"), { recursive: true });
     const directory = mkdtempSync(join(rootDir, "tmp", "build-integration-"));
     temporaryRoots.push(directory);
     const config = writeConfig(directory, "../outside.md", "build-integration-traversal");
-    const result = runCaptured(["build", "html", "--config", config]);
+    const result = await runCaptured(["build", "html", "--config", config]);
 
     expect(result.code).not.toBe(0);
     expect(result.stderr).toContain("PATH_TRAVERSAL");
   });
 
-  it("rejects missing files and unknown options with non-zero exit codes", () => {
+  it("rejects missing files and unknown options with non-zero exit codes", async () => {
     mkdirSync(join(rootDir, "tmp"), { recursive: true });
     const directory = mkdtempSync(join(rootDir, "tmp", "build-integration-"));
     temporaryRoots.push(directory);
     const config = writeConfig(directory, "manuscripts/sample/missing.md", "build-integration-missing");
-    const missing = runCaptured(["build", "html", "--config", config]);
-    const unknown = runCaptured(["build", "html", "--unknown-option"]);
+    const missing = await runCaptured(["build", "html", "--config", config]);
+    const unknown = await runCaptured(["build", "html", "--unknown-option"]);
 
     expect(missing.code).not.toBe(0);
     expect(missing.stderr).toContain("FILE_MISSING");

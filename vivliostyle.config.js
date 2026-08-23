@@ -1,12 +1,11 @@
 /**
- * Official Vivliostyle CLI configuration for the generated HTML boundary.
- * The scenario CLI selects A5/A4 and the corresponding theme at runtime;
- * this file keeps the official workspace setting and normal A5 defaults
- * reproducible. The wrapper deliberately lets the official config own
- * workspaceDir instead of adding a private CLI argument.
+ * Explicit external-CLI compatibility configuration.
+ * The normal PDF path uses the pinned CoreViewer adapter and does not read
+ * this file, its staged copy, or its workspaceDir. An explicitly supplied
+ * external executable can consume the same temporary config instead.
  */
 export default {
-  entry: "generated/html/sample-publication.html",
+  entry: ["generated/html/sample-publication.html"],
   title: "DX3rd Scenario Sample",
   entryContext: ".",
   theme: "themes/scenario-a5/theme.css",

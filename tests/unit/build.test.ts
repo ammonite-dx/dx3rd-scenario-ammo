@@ -19,6 +19,7 @@ import {
 import { preparePublication } from "../../src/build/publication.js";
 import {
   buildVivliostyleArgs,
+  buildPuppeteerLaunchArgs,
   buildWindowsCommandLine,
   buildWindowsShellCommand,
   locateVivliostyle,
@@ -64,7 +65,14 @@ describe("publication build preparation", () => {
   });
 });
 
-describe("Vivliostyle CLI argument construction", () => {
+describe("Vivliostyle adapter boundary", () => {
+  it("keeps Chrome sandbox enabled unless the exact opt-in value is set", () => {
+    expect(buildPuppeteerLaunchArgs(undefined)).toEqual([]);
+    expect(buildPuppeteerLaunchArgs("0")).toEqual([]);
+    expect(buildPuppeteerLaunchArgs("true")).toEqual([]);
+    expect(buildPuppeteerLaunchArgs("1")).toEqual(["--no-sandbox"]);
+  });
+
   it("passes only the explicit config and log level without duplicate build inputs", () => {
     expect(buildVivliostyleArgs({
       prefixArgs: [],
@@ -112,7 +120,7 @@ describe("Vivliostyle CLI argument construction", () => {
     );
   });
 
-  it("waits for a Windows .cmd boundary and propagates both success and failure", () => {
+  it("waits for a Windows .cmd boundary and propagates both success and failure", async () => {
     if (process.platform !== "win32") return;
 
     const temporaryRoot = mkdtempSync(join(tmpdir(), "vivliostyle-cmd-boundary-"));
@@ -141,8 +149,11 @@ describe("Vivliostyle CLI argument construction", () => {
         rootDir,
         executable: { command: commandPath, prefixArgs: [], label: "dummy Vivliostyle" },
         configPath: "package.json",
+        htmlPath: "package.json",
+        pdfPath: "tmp/dummy.pdf",
+        paper: "a5" as const,
       };
-      expect(() => runVivliostyle(options)).not.toThrow();
+      await expect(runVivliostyle(options)).resolves.toBeUndefined();
       expect(existsSync(markerPath)).toBe(true);
       expect(readFileSync(markerPath, "utf8")).toContain(
         `--executable-browser "${browserPath}"`,
@@ -150,7 +161,7 @@ describe("Vivliostyle CLI argument construction", () => {
 
       rmSync(markerPath, { force: true });
       writeDummyCommand(23);
-      expect(() => runVivliostyle(options)).toThrow("dummy Vivliostyle exited with status 23.");
+      await expect(runVivliostyle(options)).rejects.toThrow("dummy Vivliostyle exited with status 23.");
       expect(existsSync(markerPath)).toBe(true);
     } finally {
       if (previousBrowser === undefined) delete process.env.VIVLIOSTYLE_BROWSER;
@@ -167,9 +178,20 @@ describe("Vivliostyle CLI argument construction", () => {
     expect(relative.command).toBe(absolutePath);
     expect(absolute.command).toBe(absolutePath);
   });
+
+  it("does not resolve an implicit PATH executable for the default adapter", () => {
+    const previous = process.env.VIVLIOSTYLE_BIN;
+    delete process.env.VIVLIOSTYLE_BIN;
+    try {
+      expect(() => locateVivliostyle(rootDir)).toThrow("pinned @vivliostyle/core adapter");
+    } finally {
+      if (previous === undefined) delete process.env.VIVLIOSTYLE_BIN;
+      else process.env.VIVLIOSTYLE_BIN = previous;
+    }
+  });
 });
 
-describe("Vivliostyle staged config", () => {
+describe("external Vivliostyle compatibility config", () => {
   it("keeps the temporary config at root while retaining root-relative paths", () => {
     const htmlPath = join(rootDir, "generated", "html", ".publication.stage.html");
     const pdfPath = join(rootDir, "generated", "pdf", ".publication.stage.pdf");
@@ -186,7 +208,7 @@ describe("Vivliostyle staged config", () => {
 
     expect(vivliostyleConfigStageBasePath(rootDir)).toBe(join(rootDir, "vivliostyle.config.js"));
     expect(stagedConfig).toContain(
-      '"entry": "generated/html/.publication.stage.html"',
+      '"entry": [\n    "generated/html/.publication.stage.html"\n  ]',
     );
     expect(stagedConfig).toContain(
       '"theme": "themes/scenario-a5/theme.css"',
