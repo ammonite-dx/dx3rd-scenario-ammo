@@ -2,11 +2,11 @@
 
 ## 1. 文書の位置付け
 
-- 状態: MVP仕様改訂版
+- 状態: MVP仕様改訂版（現行実装の達成状況を末尾に追記）
 - 対象: TRPGシナリオをMarkdownで執筆し、意味的HTMLを経由してVivliostyleでPDF化する再利用可能な環境
 - MVPの判型: A5
 - 正本: シナリオのMarkdownと、そこから参照する構造化データのYAML
-- 生成物: 中間HTML、PDF、`.vivliostyle` 作業領域
+- 生成物: 中間HTML、PDF。`.vivliostyle` は明示外部CLI互換時だけ使う作業領域
 
 本書で決定したMVPの方針は、後続の記法仕様書・HTML出力契約・構造化データ契約・実装設計の前提とする。後続仕様で具体化する項目を保留事項として挙げる場合も、MVPの対象範囲や方針を未決定に戻すものではない。
 
@@ -17,7 +17,7 @@
 次の性質を同時に満たすことを目的とする。
 
 1. Markdownを本文の唯一の正本とし、HTMLやPDFを手作業で維持しない。
-2. シナリオ固有の記法を、正規表現による文書全体の置換ではなく、VFM/UnifiedのAST上で検証・変換する。
+2. シナリオ固有の記法を、正規表現による文書全体の置換ではなく、Markdown ASTと自前parser上で検証・変換する。
 3. 変換結果を意味的HTMLとして保持し、A5の組版はThemeに分離する。
 4. buildとpreviewで同じ変換・検証結果を得る。
 5. 不正な記法、未知のブロック、未知の予約フィールドを黙って通さず、執筆時点で修正できる診断として報告する。
@@ -29,7 +29,7 @@
 
 - 単一リポジトリ内で完結するMarkdown執筆環境
 - 先頭のfrontmatterと、その直後の最初の通常H1による章タイトル
-- VFM/Unifiedを基盤にしたASTベースの独自変換
+- remark-parse/Unifiedと自前parserを基盤にしたASTベースの独自変換
 - 本文用 narrative block の語彙
   `dialogue`, `roleplay`, `choice`, `check`, `info`, `e-lois`, `battle`
 - 開始行の表示タイトルと単独の `:::` 終端を持つ、属性リストを使わない本文記法
@@ -37,12 +37,12 @@
 - `check` の技能・難易度・必須マーカーと、ちょうど1組の技能/難易度ペアの検証
 - 敵・コンボ等の構造化データを外部YAMLへ分離し、Markdownの通常リンクで参照する境界
 - 専用ブロックを含むMarkdownから意味的HTMLを生成する変換ツール
-- 変換ツールを利用したVivliostyle CLIのbuildとpreview
+- 変換ツールを利用した公式Vivliostyle CoreのPDF build
 - A5 PDFの安定した生成
 - PDF生成に用いた中間HTMLの出力
 - 未知名、未知の予約フィールド、閉じ忘れ、開始行の形式不正、本文の不正、MVPで禁止する入れ子の検証
-- CLI/VFMの検証済みバージョン固定と依存関係ロック
-- Vivliostyleの `workspaceDir` として `.vivliostyle` を使用する構成
+- Core/PuppeteerとMarkdown変換依存の検証済みバージョン固定と依存関係ロック
+- 明示外部CLI互換時だけVivliostyleの `workspaceDir` として `.vivliostyle` を使用する構成
 - 旧記法を新しい正本へ一度だけ変換する移行ツール
 - オフラインでフォントを再現できる構成
 
@@ -56,10 +56,21 @@
 - 本文全体の正規表現置換による角括弧ラベルの意味付け
 - WebPub出力。これはMVP後の次段階で扱う。
 - EPUB出力。現行計画の対象外とする。
-- A4 PDFの対応およびA4向けの完成度保証。将来追加できる設計にはするが、MVPの完了条件には含めない。
+- A4 PDFのMVP必須化およびA4向けの詳細な完成度保証。現行実装には任意のA4切替を含むが、細かな改ページ品質は別途確認する。
 - Markdown以外を本文の正本とする編集フロー
 - ThemeがMarkdownの記法を解釈する仕組み
 - MVP時点でのパッケージ分離。APIが安定した後に分離を検討する。
+
+### 3.3 現行実装との対応
+
+3.1/3.2は仕様策定時のMVPスコープであり、現在のコードに対する達成状況は次のとおりである。
+
+- 実装済み: parser/data/renderer/themeの責務分離、4章の明示順、外部YAML参照、意味的HTML、A5 PDF、任意のA4切替、原子的公開、リポジトリ境界検証。
+- 実装済み: 公式 `@vivliostyle/core@2.45.0` の `CoreViewer` と `puppeteer-core@25.1.0` によるPDF境界。CoreViewerの完了をawaitするため、通常の非TTY実行で完了待機を隠さない。
+- 実装済み: 通常Core経路は生成HTML内のTheme linkとpaper引数を使い、`vivliostyle.config.js`とstaged configを読み込まず、`workspaceDir`を組版の作業領域として消費しない。これらは明示外部CLI互換境界としてだけ維持する。
+- 実装済み: `pypdf==6.10.0` と `pdfplumber==0.11.9` の固定、`npm run test:python`、A5/A4の寸法・本文・章タイトル・XMLエラーマーカー検証。
+- 現在も未実装: 専用のWebPub出力、旧記法の一回限り移行ツール、再利用パッケージの分離、オフラインで同一フォントを保証するフォント資産の同梱。
+- 現在も未実装: 専用 `preview` コマンド。`npm run build:html` の出力HTMLをブラウザで確認する手順はあるが、preview APIとしては提供していない。
 
 ## 4. 用語
 
@@ -69,8 +80,8 @@
 | narrative block | 本文中でシナリオ進行上の意味を持つ専用ブロック。MVPでは `dialogue`、`roleplay`、`choice`、`check`、`info`、`e-lois`、`battle` を指す。 |
 | 表示タイトル | narrative block の開始行に書く、行末までの必須のプレーンテキスト。話者名、判定名、情報項目名などに使う。 |
 | 角括弧ラベル行 | 専用ブロック直下の列1から始まる、既知の `[ラベル] 値` 形式の行。ブロックごとのAST解釈対象であり、文書全体の置換対象ではない。 |
-| VFM | Vivliostyle Flavored Markdown。現在のMarkdown入力を解析する基盤。 |
-| Unified | MarkdownをASTとして扱う変換基盤。専用ブロックの認識・検証・変換はこのASTの段階で行う。 |
+| Markdown parser | `remark-parse`/Unifiedと、このリポジトリの自前parser。Markdown ASTと位置情報を使って専用ブロックを認識・検証する。 |
+| Unified | MarkdownをASTとして扱う変換基盤。専用ブロックの認識・検証・変換は自前parserと組み合わせてこのASTの段階で行う。 |
 | AST | Markdownの構造を表す抽象構文木。文字列の正規表現置換で代用しない。 |
 | 意味的HTML | 見た目だけでなく、見出し、節、段落、リスト、表、リンク、画像、専用ブロックの意味が構造として表現されたHTML。 |
 | 構造化データ | 敵、コンボなどの機械処理を主目的とするデータ。Markdown本文から分離したYAMLファイルを正本とする。 |
@@ -103,7 +114,7 @@
 Markdown + frontmatter + 外部YAML + 画像等の資産
         │
         ▼
-VFM/Unifiedによる解析
+remark-parse/Unifiedと自前parserによる解析
         │
         ├── frontmatter / 最初のH1の検証
         ├── narrative blockの境界・表示タイトルの検証
@@ -116,26 +127,26 @@ ASTの検証・専用ノードの意味変換
         ▼
 意味的HTML（中間生成物）
         │
-        ├── Vivliostyle CLI + Theme ──> A5 PDF
-        └── preview ───────────────────> 同じ変換結果の閲覧
+        ├── Vivliostyle Core + Puppeteer + Theme ──> A5/A4 PDF
+        └── build:html ───────────────────────────> 同じ変換結果の閲覧
 ```
 
 ### 6.2 責務の分離
 
 - **Markdown** は本文と文書構造を表す。作者が編集する本文の唯一の正本である。
 - **frontmatter** は文書IDなどの機械可読メタデータを担う。表示上の章タイトルはfrontmatterに入れず、通常のH1で表す。
-- **VFM/Unifiedと独自変換ツール** は、Markdownを解析し、narrative block、表示タイトル、専用フィールド、`check` の機械可読項目を検証して意味的HTMLへ変換する。認識はAST上で行い、生成HTMLへの正規表現後処理を使用しない。
+- **remark-parse/Unifiedと自前parser** は、Markdownを解析し、narrative block、表示タイトル、専用フィールド、`check` の機械可読項目を検証して意味的HTMLへ変換する。認識はAST上で行い、生成HTMLへの正規表現後処理を使用しない。VFMは依存に含めない。
 - **外部YAML** は敵・コンボ等の構造化データの正本である。Markdownは相対パスの通常リンクで参照する。YAMLの詳細スキーマは `docs/data-contract.md` の責務とする。
 - **意味的HTML** は、通常のMarkdown構造とnarrative blockの意味を保持する中間契約である。将来のWebPubなど、PDF以外の出力の基盤にもできる構造とする。
 - **Theme** は意味的HTMLの組版だけを担当する。Markdownの記法、旧記法、属性の補完、ラベルの意味判断を担当しない。
-- **Vivliostyle CLI** は、変換済みHTMLをA5に組版し、PDFとpreviewを提供する。
+- **Vivliostyle Core + Puppeteerアダプタ** は、変換済みHTMLをA5/A4に組版し、CoreViewerの完了を待ってPDFを生成する。専用previewコマンドはまだ提供しない。
 - **移行ツール** は、旧記法の入力を新しいMarkdownと外部YAMLへの参照へ変換する。通常の変換パイプラインとは別の一回限りの処理とする。
 
 ### 6.3 バージョンと作業領域
 
-- CLIとVFMは、実際にbuild・preview・PDF出力を検証したバージョンを明示的に固定する。
+- Core、Puppeteer、remark-parse/Unified、自前変換に関わる依存は、実際にbuild・PDF出力を検証したバージョンを明示的に固定する。PythonのPDF検証依存もrequirementsファイルで固定する。
 - 依存関係のロックファイルをリポジトリで管理し、未検証の `latest` 追随を実行時の前提にしない。
-- Vivliostyleの `workspaceDir` は `.vivliostyle` に固定する。キャッシュ、一時ファイル、CLIが生成する作業状態はここに集約し、Markdown正本と混在させない。
+- 通常Core経路は `vivliostyle.config.js`とstaged configを読み込まず、`workspaceDir`を組版の作業領域として消費しない。これらと `.vivliostyle` は明示外部CLI互換境界としてだけ維持する。
 - MVPは単一リポジトリで完成させる。変換API、HTML出力契約、構造化データ契約が安定した後に、再利用単位を見極めてパッケージ分離を検討する。
 
 ## 7. 機能要件
@@ -188,24 +199,24 @@ ASTの検証・専用ノードの意味変換
 
 ### 7.4 AST変換と意味的HTML
 
-- **FR-21**: Markdown入力はVFM/Unifiedで解析し、独自変換ツールがASTを検証・変換して意味的HTMLを生成する。
+- **FR-21**: Markdown入力は`remark-parse`/Unifiedと自前parserで解析し、独自変換ツールがASTを検証・変換して意味的HTMLを生成する。VFMは使用しない。
 - **FR-22**: 変換後のHTMLは、見出しの階層、章・節、段落、リスト、表、リンク、画像、narrative blockの境界、専用フィールドの意味を構造として表す。
 - **FR-23**: narrative blockは、後からThemeやWebPub側が識別できる安定した意味情報をHTMLに持たせる。具体的なタグ、属性、クラス、ARIA情報はHTML出力契約で固定する。
 - **FR-24**: 変換ツールは、組版のための余白、書体、改ページ、装飾を意味変換の責務に混ぜない。
 
 ### 7.5 buildとpreview
 
-- **FR-25**: buildは、Markdown、frontmatter、参照先YAMLを解析・検証・変換した中間HTMLを生成し、そのHTMLをVivliostyle CLIで組版してA5 PDFを生成する。
+- **FR-25**: buildは、Markdown、frontmatter、参照先YAMLを解析・検証・変換した中間HTMLを生成し、そのHTMLを公式 `@vivliostyle/core` の公開 `CoreViewer` APIへ渡してA5 PDFを生成する。A4は同じ経路の任意選択とする。
 - **FR-26**: previewはbuildと同じ解析・検証・変換処理を通す。previewだけが別の記法解釈や寛容なフォールバックを持ってはならない。
 - **FR-27**: buildとpreviewは、同じ入力・依存バージョン・Theme設定に対して、同じ意味的HTMLを参照する。
-- **FR-28**: CLIの実行に必要な設定、依存関係、作業領域はリポジトリから再現できるようにする。`.vivliostyle` は設定された作業領域として使用する。
+- **FR-28**: Core、Puppeteer、Python検証に必要な設定と依存関係はリポジトリから再現できるようにする。通常Core経路は`vivliostyle.config.js`とstaged configを読み込まず、`.vivliostyle`を作業領域として使用しない。これらは明示外部CLI互換時だけ使用する。
 
 ### 7.6 Themeと組版
 
 - **FR-29**: Themeは意味的HTMLに対してA5のページ寸法、余白、書体、見出し、narrative blockの視覚表現、改ページ、ページ番号等の組版を適用する。
 - **FR-30**: Themeは専用記法の解析、表示タイトルの補完、ラベルの推測、旧記法の変換を行わない。
 - **FR-31**: HTMLの意味構造を変えずにThemeだけを差し替えられる境界を保つ。
-- **FR-32**: A5の寸法値と組版ルールは、将来A4用の寸法・Themeを追加できるよう、変換ツールと分離した設計にする。A4用の表示調整や完成度はMVPでは保証しない。
+- **FR-32**: A5/A4の寸法値と組版ルールは、変換ツールと分離したTheme・設定で切り替える。現行実装はA4 PDFを生成できるが、A4の細かな表示調整や完成度は別の視覚受け入れで保証する。
 
 ### 7.7 旧記法の移行
 
@@ -219,7 +230,7 @@ ASTの検証・専用ノードの意味変換
 
 ### 8.1 再現性
 
-- **NFR-01**: CLI、VFM、変換に関わる主要依存は、検証済みバージョンを固定する。
+- **NFR-01**: Core、Puppeteer、remark-parse/Unified、自前変換に関わる主要npm依存とPDF検証用Python依存は、検証済みバージョンを固定する。VFMは依存に含めない。
 - **NFR-02**: ロックファイルを含むリポジトリから依存関係とbuild・previewの実行条件を再現できる。
 - **NFR-03**: PDF生成は外部ネットワーク接続を必須条件にしない。フォントはローカルに同梱するか、事前取得済みの固定資産として扱い、オフラインで同じフォント構成を再現できるようにする。外部Webフォントだけに依存する構成は採用しない。
 - **NFR-04**: Markdownから参照するYAMLの相対パスと内容を固定資産として扱い、同じ入力から同じデータを解決できるようにする。
@@ -282,7 +293,7 @@ ASTの検証・専用ノードの意味変換
 | YAML | 敵・コンボ等の構造化データの正本 | Markdownから相対リンクで参照する。詳細契約に従って検証する。 |
 | 中間HTML | 変換結果 | buildで生成する。手編集せず、MarkdownとYAMLから再生成する。MVPの納品物に含める。 |
 | PDF | 組版結果 | buildで生成する。配布・目視確認の対象。MarkdownやHTMLの代わりに編集しない。 |
-| `.vivliostyle` | CLIの作業領域 | キャッシュ・一時状態として扱い、正本や納品物に含めない。再生成可能な状態にする。 |
+| `.vivliostyle` | 明示外部CLI互換時の作業領域 | 通常Core経路では使用せず、外部CLIを明示した場合だけキャッシュ・一時状態として扱う。正本や納品物に含めない。 |
 | 画像・フォント等の資産 | MarkdownまたはYAMLから参照される入力 | ライセンスと配置を管理し、PDF生成に必要な資産をオフラインで解決できるようにする。 |
 
 生成物の具体的な出力パスやファイル命名はbuild仕様で定めるが、正本と生成物の責務分離は変更しない。生成物をリポジトリに置く場合も、手編集せず、再生成可能な成果物として扱う。
@@ -327,19 +338,19 @@ MVPの出力対象はPDFと中間HTMLである。WebPubは次段階の設計対�
 6. `choice` がリストなしの自然文、リスト、表などを受理し、選択対象や分岐の記述を作者に強制しない。
 7. 敵・コンボの構造化データが `data/enemies/<enemy-id>.yaml` の `enemy.combos[]` にあり、Markdownが敵全体をfragmentなし、コンボ単体を `[コンボデータ：表示名](../data/enemies/<enemy-id>.yaml#<combo-id>)` の通常リンクで参照できる。`combo` 本文ブロックは受理しない。
 8. 属性リスト、`.scene-title`、太字・引用からの意味推測、未知ブロック、未知の予約フィールド、閉じ忘れ、入れ子が、位置を含むエラーになる。
-9. 変換後のHTMLをVivliostyle CLIでA5 PDFに組版でき、PDFと中間HTMLがMVPの成果物として得られる。
+9. 変換後のHTMLを公式Vivliostyle Coreの公開APIでA5 PDFに組版でき、PDFと中間HTMLがMVPの成果物として得られる。
 10. Themeは組版を担当し、専用記法の解釈や正規表現によるHTML後処理を担当していない。
 11. buildとpreviewが同じ変換処理を使用し、どちらか一方だけが旧記法や不完全な入力を許容しない。
-12. CLIとVFMの検証済みバージョンが固定され、依存関係ロックと `.vivliostyle` の作業領域設定がリポジトリから再現できる。
+12. Core、Puppeteer、Markdown変換依存、PDF検証用Python依存の検証済みバージョンが固定され、依存関係ロックとrequirementsファイルがリポジトリから再現できる。`.vivliostyle` の作業領域設定は明示外部CLI互換時だけ使用する。
 13. ネットワークに接続できない環境でも、固定したフォント資産で同じフォント構成のPDFを生成できる。
 14. 対象範囲として定めた旧記法を移行ツールで新しいMarkdownと外部YAML参照へ変換でき、変換後の原稿を通常のbuildで処理できる。
 15. 代表的な原稿でA5のページ寸法、章タイトル、見出し、narrative block、フィールド、画像、リンク、改ページを目視確認し、重大な欠落や崩れがない。
 
-### 12.2 将来A4の扱い
+### 12.2 A4の現行扱いと未保証範囲
 
-- A4は、MVP完了後に同じMarkdown、外部YAML、意味的HTMLを使って追加する。
-- A4追加時は、ページ寸法、余白、文字サイズ、改ページ、narrative blockの収まりをA4向けThemeまたは設定として調整する。
-- A4を追加可能な責務分離はMVPで確認するが、A4のPDF出力、視覚品質、受け入れ試験はMVP完了条件に含めない。
+- A4は、MVPのA5経路と同じMarkdown、外部YAML、意味的HTMLを使って現行実装で生成できる。
+- A4のページ寸法・テーマ切替・PDF本文検証は実装済みである。
+- A4の細かな改ページ、余白、文字サイズ、narrative blockの収まりの視覚品質と正式な受け入れ試験は、なお別課題として扱う。
 
 ## 13. 段階計画
 
@@ -352,7 +363,7 @@ MVPの出力対象はPDFと中間HTMLである。WebPubは次段階の設計対�
 
 ### 第2段階: MVP変換基盤
 
-- VFM/Unifiedの検証済みバージョンを固定する。
+- remark-parse/Unifiedと自前parserの検証済みバージョンを固定する。VFMは導入しない。
 - ASTでfrontmatter、章タイトル、本文用ブロック、既知ラベルを認識・検証し、意味的HTMLへ変換する独自変換ツールを実装する。
 - unknown、予約フィールド、開始行不正、閉じ忘れ、ペア不整合、入れ子を検出する。
 - 外部YAMLの相対リンクを構造化データ契約に沿って検証する。
@@ -360,7 +371,7 @@ MVPの出力対象はPDFと中間HTMLである。WebPubは次段階の設計対�
 ### 第3段階: A5組版と実行経路
 
 - Themeを意味的HTMLの組版専用として整理する。
-- `.vivliostyle` をworkspaceDirに設定し、ロック済みCLIでbuild・previewを接続する。
+- 通常Core経路はHTML内Theme linkとpaper引数でPDF buildを接続する。`vivliostyle.config.js`、staged config、`.vivliostyle`は明示外部CLI互換境界として維持する。
 - オフラインで再現できるフォント構成を組み込む。
 - 中間HTMLとA5 PDFを生成し、代表原稿で視覚確認する。
 
@@ -379,19 +390,17 @@ MVPの出力対象はPDFと中間HTMLである。WebPubは次段階の設計対�
 
 ## 14. 保留事項
 
-以下はMVPの方針を変えず、次の仕様書またはMVP後の設計で具体化する事項である。
+仕様策定時の詳細化項目のうち、frontmatter、7種類の本文用ブロック、AST変換、外部YAML、
+意味的HTML、A5 PDF、A4切替、依存固定、PDF検証、原子的公開は現行実装で確認済みであり、
+保留事項から除外する。以下が現在も残る課題である。
 
-- frontmatterの必須キー、章IDの命名規則、複数章を束ねる設定の形式
-- 本文用7種類それぞれの正確な開始・終了記号、表示タイトルの空白処理、本文の許可構造
-- 専用ブロック直下の既知ラベル一覧、ラベルの多重度、ASTフィールドの詳細型
-- `info`・`e-lois` の複数技能/難易度ペアをHTMLへ表現する具体的な出力契約
-- 専用ブロックを表現するHTML要素、安定したクラス・data属性・ARIA属性の最終セット
-- 敵・コンボのYAMLスキーマ、ファイル配置、参照整合性、JSON交換形式の生成規則（`docs/data-contract.md`）
-- giftの `section-title`、`trailer`、`toc`、説明リスト等を新正本へ移行する際の個別変換規則
-- 採用するフォントファイル、ライセンス表記、フォールバック順、配布方法
+- 専用 `preview` コマンドと、buildと同じ変換結果を提供するpreview API
+- 採用するフォントファイル、ライセンス表記、フォールバック順、オフライン配布方法
 - A5の細かな改ページ規則、目次やページ番号のHTML出力契約との接続
-- WebPubが利用するメタデータとナビゲーションの契約
-- A4の寸法・余白・文字組み・Theme調整
+- A4の細かな寸法・余白・文字組み・Theme調整と正式な視覚受け入れ
+- WebPubが利用するメタデータとナビゲーションの契約、WebPub出力そのもの
+- giftの `section-title`、`trailer`、`toc`、説明リスト等を新正本へ移行する一回限りの個別変換規則
 - API安定後のパッケージ分離単位と公開方法
 
-保留事項は、MVPで採用するA5、frontmatter、通常のH1、7種類の本文用ブロック、AST変換、外部YAML、build/preview共通経路、旧記法の一回限り移行、PDFと中間HTMLの成果物という決定を変更しない。
+上記は、MVPで採用したA5、通常のH1、7種類の本文用ブロック、AST変換、外部YAML、
+PDFと中間HTMLの成果物という決定を変更しない。旧記法を通常buildへ戻す互換層も追加しない。

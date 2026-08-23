@@ -2,7 +2,7 @@
 
 ## 1. 位置付けと決定事項
 
-本書は、[要件定義](requirements.md) に定めた単一リポジトリMVPの責務と配置を固定する設計文書である。対象は、Markdownと外部YAMLを正本として扱い、VFM/UnifiedのASTで検証・変換した意味的HTMLをVivliostyleで組版する実行環境である。
+本書は、[要件定義](requirements.md) に定めた単一リポジトリMVPの責務と配置を固定する設計文書である。対象は、Markdownと外部YAMLを正本として扱い、remark-parse/Unifiedと自前parserで検証・変換した意味的HTMLをVivliostyleで組版する実行環境である。VFMは依存に含めない。
 
 専用ブロックの文法は [記法仕様](syntax.md)、意味的HTMLのタグ・属性・クラス契約は [HTML出力契約](html-contract.md)、敵データとコンボのYAML契約は [データ契約](data-contract.md) を正本とする。本書ではそれらを重複定義せず、ファイルの責務、生成物、判型との境界、実装と移行の順序を定める。
 

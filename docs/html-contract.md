@@ -2,7 +2,7 @@
 
 ## 1. 目的と適用範囲
 
-本書は、VFM/UnifiedでMarkdownと参照先YAMLを解析・検証・正規化した後、Themeへ渡す意味的HTMLのMVP契約を定義する。対象は、文書構造、通常のMarkdown要素、目次・リンク・画像、7種類のnarrative block、専用フィールド、検証済みの敵・コンボ参照、およびアクセシビリティに関わる属性である。
+本書は、remark-parse/Unifiedと自前parserでMarkdownと参照先YAMLを解析・検証・正規化した後、Themeへ渡す意味的HTMLのMVP契約を定義する。対象は、文書構造、通常のMarkdown要素、目次・リンク・画像、7種類のnarrative block、専用フィールド、検証済みの敵・コンボ参照、およびアクセシビリティに関わる属性である。VFMは依存に含めない。
 
 本書はHTMLをどのように組版するかを定義しない。ページ寸法、余白、書体、改ページ、ページ番号、running headerの表示方法、色、罫線、アイコンなどはThemeの責務である。MVPの前提と責務分離は[要件定義書](requirements.md)、入力Markdownは[記法仕様書](syntax.md)、敵YAMLのスキーマと参照解決は[外部YAMLデータ契約](data-contract.md)に従う。
 
