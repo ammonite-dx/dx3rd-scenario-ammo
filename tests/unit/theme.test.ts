@@ -23,6 +23,14 @@ function expectSelector(css: string, selector: string): void {
   expect(css, `missing Theme selector: ${selector}`).toContain(selector);
 }
 
+function isMonochromeHexColor(color: string): boolean {
+  const hex = color.slice(1);
+  const channels = hex.length <= 4
+    ? hex.slice(0, 3).split("").map((channel) => Number.parseInt(channel + channel, 16))
+    : [0, 2, 4].map((offset) => Number.parseInt(hex.slice(offset, offset + 2), 16));
+  return Math.max(...channels) - Math.min(...channels) <= 2;
+}
+
 function resolveRelativeImports(css: string, sourcePath: string): string[] {
   const imports: string[] = [];
   const pattern = /@import\s+(?:url\(\s*)?["']([^"')]+)["']\s*\)?\s*;/gu;
@@ -58,27 +66,53 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(a4).toContain("size: A4 portrait");
   });
 
-  it("defines page furniture, typography fallbacks, and print-safe text rules", () => {
+  it("uses gift-like A5 page furniture and Japanese typography", () => {
     const css = readThemeFile("theme.css");
 
-    expect(css).toContain("bleed: 3mm");
-    expect(css).toContain("@top-left");
-    expect(css).toContain("@top-right");
-    expect(css).toContain("@bottom-left");
-    expect(css).toContain("@bottom-right");
+    expect(css).toContain("margin: 14mm");
+    expect(css).toContain("@bottom-center");
+    expect(css).toContain("@right-middle");
+    expect(css).not.toContain("bleed:");
+    expect(css).not.toContain("@top-");
+    expect(css).not.toContain("@bottom-left");
+    expect(css).not.toContain("@bottom-right");
     expect(css).toContain("counter(page)");
+    expect(css).toContain("writing-mode: vertical-rl");
+    expect(css).toContain("text-orientation: sideways");
+    expect(css).toContain("--font-body: \"Noto Sans JP\"");
+    expect(css).toContain("--font-display: \"Noto Serif JP\"");
+    expect(css).toContain("--font-size-body: 16Q");
+    expect(css).toContain("--line-height-body: 28Q");
+    expect(css).toContain("text-align: justify");
+    expect(css).toContain("text-spacing-trim: trim-start");
+    expect(css).toContain("hanging-punctuation: allow-end");
     expect(css).toContain("string-set: document-title content(text)");
     expect(css).toContain("string-set: section-title content(text)");
     expect(css).toContain("string-set: document-id attr(data-document-id)");
     expect(css).toContain("line-break: strict");
     expect(css).toContain("overflow-wrap: anywhere");
-    expect(css).toContain("orphans: 3");
-    expect(css).toContain("widows: 3");
+    expect(css).toContain("orphans: 2");
+    expect(css).toContain("widows: 2");
     expect(css).toContain("font-family: var(--font-body)");
     expect(css).toContain("font-family: var(--font-ui)");
     expect(css).toContain("font-family: var(--font-mono)");
     expect(css).not.toMatch(/https?:\/\//iu);
     expect(css).not.toMatch(/@font-face/iu);
+  });
+
+  it("builds a CSS-only black chapter band and dotted black section headings", () => {
+    const css = readThemeFile("theme.css");
+
+    expect(css).toContain(".document-header::before");
+    expect(css).toContain(".document-header::after");
+    expect(css).toContain("inline-size: 120mm");
+    expect(css).toContain("min-block-size: 25mm");
+    expect(css).toContain("break-before: page");
+    expect(css).toContain("font-size: 32Q");
+    expect(css).toContain("border-block-end: 3px dotted #000");
+    expect(css).toContain('content: "▼ "');
+    expect(css).toContain('content: "● "');
+    expect(css).not.toContain("background-image");
   });
 
   it("covers the semantic document, section, narrative, field, and media contract", () => {
@@ -127,7 +161,7 @@ describe("scenario A5 Vivliostyle Theme", () => {
     for (const selector of selectors) expectSelector(css, selector);
   });
 
-  it("keeps all seven narrative modifiers visibly distinct and handles check state", () => {
+  it("covers all narrative kinds with monochrome panels and preserves check state", () => {
     const css = readThemeFile("theme.css");
     const kinds = ["dialogue", "roleplay", "choice", "check", "info", "e-lois", "battle"];
     for (const kind of kinds) {
@@ -136,10 +170,28 @@ describe("scenario A5 Vivliostyle Theme", () => {
     }
     expect(css).toContain("data-check-mandatory=\"true\"");
     expect(css).toContain("data-check-mandatory=\"false\"");
-    expect(css).toContain("border-inline-start-style: solid");
-    expect(css).toContain("border-inline-start-style: dotted");
-    expect(css).toContain("border-style: dashed");
+    expect(css).toContain("background: #eee");
+    expect(css).toContain("background: #fff");
+    expect(css).toContain("border: 2px solid #999");
     expect(css).toContain("border-style: double");
+    expect(css).toContain("border-block-style: dashed");
+    expect(css).toContain("border-block-end: 2px dotted #999");
+  });
+
+  it("uses grayscale colors and gift-like data-key chips without losing repeated fields", () => {
+    const css = readThemeFile("theme.css");
+    const colors = css.match(/#[\da-f]{3,8}\b/giu) ?? [];
+
+    expect(colors.length).toBeGreaterThan(0);
+    for (const color of colors) expect(isMonochromeHexColor(color), `${color} is not grayscale`).toBe(true);
+    expect(css).toContain("flex: 0 0 30mm");
+    expect(css).toContain("min-inline-size: 30mm");
+    expect(css).toContain("border-radius: 4Q");
+    expect(css).toContain("--color-panel-strong: #757575");
+    expect(css).toContain("background: var(--color-panel-strong)");
+    expect(css).toContain("color: #fff");
+    expect(css).toContain(".field-list__item > dd");
+    expect(css).toContain(".data-fields__item > dd");
   });
 
   it("names every structured-data section and protects lists, rows, and panels at page breaks", () => {
@@ -152,6 +204,9 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(css).toContain("display: table-header-group");
     expect(css).toContain("break-inside: avoid;");
     expect(css).toContain("word-break: break-word");
+    expect(css).toContain("a[data-link-kind=\"internal\"]::after");
+    expect(css).toContain('content: " (p." target-counter(attr(href), page) ")"');
+    expect(css).toContain("table a[data-link-kind=\"internal\"]::after");
   });
 
   it("renders fixture HTML containing the selectors the Theme is responsible for", () => {
