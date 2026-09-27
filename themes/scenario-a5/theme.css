@@ -1,9 +1,9 @@
 /*
  * DX3rd scenario Theme
  *
- * The semantic HTML contract is the source of truth for every selector in
- * this file.  A5 is intentionally the default; theme-a4.css is the small
- * alternate entry point for the same HTML.
+ * This stylesheet maps the current semantic HTML contract to the visual
+ * language of gift. A5 is the baseline; theme-a4.css is an alternate page
+ * entry point for the same document contract.
  */
 
 :root {
@@ -18,20 +18,15 @@
   --font-mono: "Cascadia Mono", "SFMono-Regular", "BIZ UDGothic", "MS Gothic", ui-monospace, monospace;
   --font-size-body: 16Q;
   --line-height-body: 28Q;
-  --line-height-tight: 1.25;
 
-  --color-ink: #111;
+  --color-ink: #000;
   --color-muted: #444;
-  --color-rule: #888;
+  --color-rule: #999;
   --color-rule-light: #aaa;
   --color-panel: #eee;
-  --color-panel-strong: #757575;
-  --color-accent: #444;
-  --color-accent-dark: #111;
+  --color-label: #999;
   --color-link: #000;
 
-  --rule-thin: 0.4pt;
-  --rule-medium: 0.8pt;
   --space-1: 0.25rem;
   --space-2: 0.5rem;
   --space-3: 0.75rem;
@@ -42,23 +37,18 @@
 @page {
   size: A5 portrait;
   margin: 14mm;
+  background-color: #fff;
 
   @bottom-center {
     content: counter(page);
     block-size: 16Q;
     margin-block-start: 4mm;
-    font-family: var(--font-ui);
-    color: var(--color-ink);
-    text-align: center;
   }
 }
 
 @page :right {
   @right-middle {
-    content: string(section-title);
-    font-family: var(--font-ui);
-    font-size: 8pt;
-    color: var(--color-muted);
+    content: string(document-id);
     writing-mode: vertical-rl;
     text-orientation: sideways;
     vertical-align: top;
@@ -75,10 +65,10 @@ html[data-html-contract="dx3rd-scenario/v1"] {
   color: var(--color-ink);
   background: #fff;
   line-break: strict;
-  text-spacing-trim: trim-start;
+  /* Closest current CSS Text mapping for gift's legacy text-spacing: allow-end. */
+  text-spacing-trim: normal;
+  text-autospace: no-autospace;
   hanging-punctuation: allow-end;
-  overflow-wrap: anywhere;
-  word-break: normal;
 }
 
 /* Keep the contract's data-region and anchor hooks explicit for Theme users. */
@@ -112,9 +102,8 @@ body {
   line-height: var(--line-height-body);
   font-weight: 400;
   text-align: justify;
-  text-rendering: optimizeLegibility;
-  orphans: 2;
-  widows: 2;
+  orphans: 1;
+  widows: 1;
 }
 
 main.document {
@@ -132,17 +121,19 @@ main.document {
   justify-content: center;
   inline-size: 120mm;
   max-inline-size: 100%;
-  min-block-size: 25mm;
-  margin: 0 0 3mm;
-  padding: 5mm 8mm;
-  border: 1px solid #fff;
+  block-size: 25mm;
+  margin-block: 0 3mm;
+  margin-inline: 0;
   background: #111;
   color: #fff;
+  font-family: var(--font-display);
+  font-weight: 700;
   text-align: center;
   break-before: page;
   break-after: avoid-page;
 }
 
+/* The old PNG is intentionally deferred; these CSS-only rules keep its box. */
 .document-header::before,
 .document-header::after {
   position: absolute;
@@ -167,24 +158,24 @@ main.document {
 
 .document-kicker {
   string-set: document-kicker content(text);
-  margin: 0 0 2mm;
+  margin-block: 0 8Q;
+  margin-inline: 0;
   color: inherit;
   font-family: var(--font-display);
   font-size: 16Q;
-  font-weight: 400;
+  font-weight: 700;
   line-height: 16Q;
 }
 
 .document-title {
   string-set: document-title content(text);
-  margin-block: 0;
+  margin: 0;
   color: inherit;
   font-family: var(--font-display);
   font-size: 32Q;
   font-weight: 700;
   line-height: 32Q;
   break-after: avoid-page;
-  overflow-wrap: anywhere;
 }
 
 .document-body {
@@ -192,29 +183,27 @@ main.document {
   min-inline-size: 0;
 }
 
-.document-body > p,
+.document-body p,
 .document-section p,
 .scenario-block p,
 .structured-data p {
-  margin-block: 0 var(--space-3);
+  margin-block: 0;
   text-indent: 1em;
 }
 
-.scenario-block p,
-.structured-data p,
-.document-figure p {
+.document-header p,
+.document-figure p,
+li > p,
+blockquote p {
   text-indent: 0;
 }
 
-.document-body > p:last-child,
-.document-section > p:last-child,
-.scenario-block__body > p:last-child,
-.structured-data__body > p:last-child {
-  margin-block-end: 0;
+.scenario-block[data-block-kind="dialogue"] .scenario-block__body p {
+  text-indent: 0;
 }
 
-section.document-section,
-.document-section {
+.document-section,
+section.document-section {
   display: block;
   margin-block: 0;
   min-inline-size: 0;
@@ -223,6 +212,7 @@ section.document-section,
 .document-section__title {
   string-set: section-title content(text);
   margin-block: 20Q 6Q;
+  margin-inline: 0;
   padding-block-end: 0;
   color: #000;
   font-family: var(--font-ui);
@@ -234,13 +224,10 @@ section.document-section,
   break-after: avoid-page;
   break-inside: avoid;
   margin-break: auto;
-  overflow-wrap: anywhere;
 }
 
 .document-section[data-section-level="3"] .document-section__title,
-.document-section[data-section-level="4"] .document-section__title,
-.document-section[data-section-level="5"] .document-section__title,
-.document-section[data-section-level="6"] .document-section__title {
+.document-section[data-section-level="4"] .document-section__title {
   margin-block: 16Q 4Q;
   border-block-end: 0;
   font-size: 16Q;
@@ -261,61 +248,86 @@ h3,
 h4,
 h5,
 h6 {
+  margin-block: 0;
   font-family: var(--font-ui);
-  line-height: var(--line-height-tight);
   color: #000;
   break-after: avoid-page;
   break-inside: avoid;
-  overflow-wrap: anywhere;
 }
 
-/* Contract-compatible generated TOCs can opt into page-number leaders. */
+h2 {
+  font-size: 18Q;
+  line-height: 24Q;
+  font-weight: 700;
+  margin-block: 20Q 6Q;
+  margin-break: auto;
+  border-block-end: 3px dotted #000;
+}
+
+h3,
+h4 {
+  font-size: 16Q;
+  line-height: 20Q;
+  font-weight: 700;
+  margin-block: 16Q 4Q;
+}
+
+h3::before {
+  content: "▼ ";
+}
+
+h5::before {
+  content: "● ";
+}
+
+/* A generated TOC stays visually plain and uses gift's dotted page leaders. */
 .document-toc {
-  break-before: page;
-  break-inside: avoid-page;
-  margin-block: 0 var(--space-5);
-  padding: var(--space-4);
-  border: var(--rule-medium) solid var(--color-rule);
-  background: var(--color-panel);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 
-.document-toc__title {
-  margin-block: 0 var(--space-3);
-  font-size: 14pt;
+.document-toc__link {
+  display: inline-flex;
+  inline-size: 100%;
+  color: currentColor;
+  text-decoration: none;
+  align-items: baseline;
 }
 
-.document-toc ol,
-.document-toc ul {
-  margin-block: 0;
-  padding-inline-start: 1.25em;
+.document-toc__link::before {
+  margin-inline: 0.5em;
+  border-block-end: 1px dotted;
+  content: "";
+  order: 1;
+  flex: auto;
+}
+
+.document-toc__link::after {
+  content: target-counter(attr(href), page);
+  text-align: right;
+  align-self: flex-end;
+  flex: none;
+  order: 2;
 }
 
 .document-toc li {
   break-inside: avoid;
-  padding-inline-start: var(--space-1);
+  padding: 0;
+  list-style: none;
 }
 
-.document-toc__link {
-  display: flex;
-  align-items: baseline;
-  gap: var(--space-2);
-  color: inherit;
-  text-decoration: none;
-  overflow-wrap: anywhere;
+.document-toc ul,
+.document-toc ol {
+  margin: 0;
+  padding: 0;
 }
 
-.document-toc__link::after {
-  content: leader(".") target-counter(attr(href), page);
-  flex: 1 0 auto;
-  text-align: end;
-  overflow-wrap: normal;
-}
-
-/* Images and figures are kept together and scale to the current page width. */
+/* Images retain the legacy 8Q vertical spacing and gain page-width safety. */
 .document-figure {
   break-inside: avoid-page;
-  margin-block: var(--space-4);
-  margin-inline: 0;
+  margin: 0;
   text-align: center;
 }
 
@@ -324,6 +336,7 @@ img {
   display: block;
   max-inline-size: 100%;
   block-size: auto;
+  margin-block: 8Q;
   margin-inline: auto;
 }
 
@@ -336,7 +349,7 @@ img {
   text-align: start;
 }
 
-/* Narrative blocks use the same monochrome visual language as the gift theme. */
+/* All three prose-like blocks share gift's gray panel and inset. */
 section.scenario-block,
 .scenario-block {
   display: block;
@@ -345,18 +358,19 @@ section.scenario-block,
   background: #eee;
   break-inside: avoid-page;
   page-break-inside: avoid;
-  orphans: 2;
-  widows: 2;
+  orphans: 1;
+  widows: 1;
 }
 
 .scenario-block__header {
-  margin-block: 0 8Q;
-  padding-block-end: 4Q;
-  border-block-end: 2px dotted #999;
+  position: relative;
+  margin: 0;
+  padding: 0;
   break-after: avoid-page;
 }
 
 .scenario-block__title {
+  display: block;
   margin: 0;
   color: #000;
   font-family: var(--font-ui);
@@ -365,92 +379,227 @@ section.scenario-block,
   line-height: 20Q;
 }
 
+/* Gift's prose-panel heading has a 24Q flex row and an 8Q lower gap. */
+.scenario-block--dialogue .scenario-block__header,
+.scenario-block--roleplay .scenario-block__header,
+.scenario-block--choice .scenario-block__header,
+.scenario-block[data-block-kind="dialogue"] .scenario-block__header,
+.scenario-block[data-block-kind="roleplay"] .scenario-block__header,
+.scenario-block[data-block-kind="choice"] .scenario-block__header {
+  margin-block-end: 8Q;
+}
+
+.scenario-block--dialogue .scenario-block__title,
+.scenario-block--roleplay .scenario-block__title,
+.scenario-block--choice .scenario-block__title,
+.scenario-block[data-block-kind="dialogue"] .scenario-block__title,
+.scenario-block[data-block-kind="roleplay"] .scenario-block__title,
+.scenario-block[data-block-kind="choice"] .scenario-block__title {
+  display: flex;
+  align-items: center;
+  min-block-size: 24Q;
+  padding-block-end: 4Q;
+  border-block-end: 2px dotted #999;
+}
+
+/* The four information-panel headings inherit the plain gift h4 geometry. */
+.scenario-block--check .scenario-block__header,
+.scenario-block--info .scenario-block__header,
+.scenario-block--e-lois .scenario-block__header,
+.scenario-block--battle .scenario-block__header,
+.scenario-block[data-block-kind="check"] .scenario-block__header,
+.scenario-block[data-block-kind="info"] .scenario-block__header,
+.scenario-block[data-block-kind="e-lois"] .scenario-block__header,
+.scenario-block[data-block-kind="battle"] .scenario-block__header {
+  margin-block-end: 4Q;
+}
+
+.scenario-block--check .scenario-block__title,
+.scenario-block--info .scenario-block__title,
+.scenario-block--e-lois .scenario-block__title,
+.scenario-block--battle .scenario-block__title,
+.scenario-block[data-block-kind="check"] .scenario-block__title,
+.scenario-block[data-block-kind="info"] .scenario-block__title,
+.scenario-block[data-block-kind="e-lois"] .scenario-block__title,
+.scenario-block[data-block-kind="battle"] .scenario-block__title {
+  border-block-end: 2px dotted #999;
+}
+
 .scenario-block__body {
   min-inline-size: 0;
 }
 
-.scenario-block__body > .field-list:first-child {
-  margin-block-start: 0;
+/* Generated labels restore gift's labels without adding source attributes. */
+.scenario-block--dialogue .scenario-block__title::before,
+.scenario-block[data-block-kind="dialogue"] .scenario-block__title::before {
+  margin-inline-start: 24Q;
+  margin-inline-end: 4Q;
+  content: "セリフ:";
 }
 
-/* Keep all seven semantic kinds addressable without reintroducing category labels. */
+.scenario-block--roleplay .scenario-block__title::before,
+.scenario-block[data-block-kind="roleplay"] .scenario-block__title::before {
+  margin-inline-start: 24Q;
+  margin-inline-end: 4Q;
+  content: "ロールプレイ:";
+}
+
+.scenario-block--choice .scenario-block__title::before,
+.scenario-block[data-block-kind="choice"] .scenario-block__title::before {
+  margin-inline-start: 24Q;
+  margin-inline-end: 4Q;
+  content: "選択:";
+}
+
+.scenario-block--check .scenario-block__title::before,
+.scenario-block--info .scenario-block__title::before,
+.scenario-block--e-lois .scenario-block__title::before,
+.scenario-block--battle .scenario-block__title::before {
+  content: none;
+}
+
 .scenario-block--dialogue,
-.scenario-block[data-block-kind="dialogue"] {
-  background: #eee;
-}
-
 .scenario-block--roleplay,
-.scenario-block[data-block-kind="roleplay"] {
-  background: #eee;
-}
-
 .scenario-block--choice,
+.scenario-block[data-block-kind="dialogue"],
+.scenario-block[data-block-kind="roleplay"],
 .scenario-block[data-block-kind="choice"] {
   background: #eee;
 }
 
+/* Gift's four labeled information panels use the same neutral border. */
 .scenario-block--check,
-.scenario-block[data-block-kind="check"] {
-  margin-block: 16Q;
-  padding: 2mm;
-  border: 2px solid #999;
-  background: #fff;
-}
-
-.scenario-block--check .scenario-block__header,
-.scenario-block--info .scenario-block__header,
-.scenario-block--e-lois .scenario-block__header,
-.scenario-block--battle .scenario-block__header {
-  margin: -2mm -2mm 8Q;
-  padding: 4Q 24Q;
-  min-block-size: 20Q;
-  background: var(--color-panel-strong);
-  border-block-end: 2px dotted #666;
-}
-
-.scenario-block--check[data-check-mandatory="true"] {
-  border-style: double;
-}
-
-.scenario-block--check[data-check-mandatory="false"] {
-  border-block-style: dashed;
-}
-
 .scenario-block--info,
-.scenario-block[data-block-kind="info"] {
-  margin-block: 16Q;
-  padding: 2mm;
-  border: 2px solid #999;
-  background: #fff;
-}
-
 .scenario-block--e-lois,
-.scenario-block[data-block-kind="e-lois"] {
+.scenario-block--battle,
+.scenario-block[data-block-kind="check"],
+.scenario-block[data-block-kind="info"],
+.scenario-block[data-block-kind="e-lois"],
+.scenario-block[data-block-kind="battle"] {
+  position: relative;
   margin-block: 16Q;
-  padding: 2mm;
+  padding-block: 24Q 8Q;
+  padding-inline: 8Q;
   border: 2px solid #999;
   background: #fff;
 }
 
-.scenario-block--battle,
-.scenario-block[data-block-kind="battle"] {
-  margin-block: 16Q;
-  padding: 2mm;
+.scenario-block--check::before,
+.scenario-block--info::before,
+.scenario-block--e-lois::before,
+.scenario-block--battle::before,
+.scenario-block[data-block-kind="check"]::before,
+.scenario-block[data-block-kind="info"]::before,
+.scenario-block[data-block-kind="e-lois"]::before,
+.scenario-block[data-block-kind="battle"]::before {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  inset-block-start: -2px;
+  inset-inline-start: -2px;
+  min-inline-size: 30mm;
+  block-size: 20Q;
+  padding-inline: 24Q;
+  background: #999;
+  color: #fff;
+  font-size: 12Q;
+  font-weight: 700;
+  line-height: 20Q;
+}
+
+.scenario-block--check::before,
+.scenario-block[data-block-kind="check"]::before {
+  content: "判定";
+}
+
+.scenario-block--info::before,
+.scenario-block[data-block-kind="info"]::before {
+  content: "情報収集";
+}
+
+.scenario-block--e-lois::before,
+.scenario-block[data-block-kind="e-lois"]::before {
+  content: "Eロイス";
+}
+
+.scenario-block--battle::before,
+.scenario-block[data-block-kind="battle"]::before {
+  content: "戦闘";
+}
+
+/*
+ * Enemy YAML expands inside the battle section. Keep the battle frame around
+ * its narrative heading/fields only so it does not continue beside the
+ * multi-page enemy sheet after the explicit page break.
+ */
+.scenario-block--battle:has(.structured-data--enemy) {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  break-inside: avoid-page;
+  page-break-inside: avoid;
+}
+
+.scenario-block--battle:has(.structured-data--enemy)::before {
+  content: none;
+}
+
+.scenario-block--battle:has(.structured-data--enemy) > .scenario-block__header {
+  margin-block: 16Q 0;
+  padding: 24Q 8Q 4Q;
   border: 2px solid #999;
+  border-block-end: 2px dotted #999;
   background: #fff;
+}
+
+.scenario-block--battle:has(.structured-data--enemy) > .scenario-block__header > .scenario-block__title {
+  border-block-end: 0;
+}
+
+.scenario-block--battle:has(.structured-data--enemy) > .scenario-block__header::before {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  inset-block-start: -2px;
+  inset-inline-start: -2px;
+  min-inline-size: 30mm;
+  block-size: 20Q;
+  padding-inline: 24Q;
+  background: #999;
+  color: #fff;
+  font-size: 12Q;
+  font-weight: 700;
+  line-height: 20Q;
+  content: "戦闘";
+}
+
+.scenario-block--battle:has(.structured-data--enemy) .scenario-block__body > .field-list {
+  margin-block: 0 16Q;
+  padding: 12Q 8Q 8Q;
+  border-inline: 2px solid #999;
+  border-block-end: 2px solid #999;
+  background: #fff;
+}
+
+/* data-check-mandatory remains semantic; it does not alter gift's border. */
+.scenario-block--check[data-check-mandatory="true"],
+.scenario-block--check[data-check-mandatory="false"] {
+  border-style: solid;
 }
 
 .scenario-block--check .scenario-block__title,
 .scenario-block--info .scenario-block__title,
 .scenario-block--e-lois .scenario-block__title,
 .scenario-block--battle .scenario-block__title {
-  color: #fff;
+  color: #000;
 }
 
+/* Semantic field lists mirror gift's gray key chips and 8Q value offset. */
 .field-list,
 .data-fields {
   display: block;
-  margin-block: var(--space-2) var(--space-3);
+  margin-block: 12Q 4Q;
   padding: 0;
 }
 
@@ -458,9 +607,10 @@ section.scenario-block,
 .data-fields__item {
   display: flex;
   align-items: flex-start;
-  gap: 8Q;
-  margin: 0;
-  padding-block: 4Q;
+  gap: 0;
+  margin-block: 4Q;
+  margin-inline: 0;
+  padding: 0;
   break-inside: avoid;
   min-inline-size: 0;
 }
@@ -469,15 +619,18 @@ section.scenario-block,
 .data-fields__item > dt {
   flex: 0 0 30mm;
   min-inline-size: 30mm;
-  margin: 0;
+  min-block-size: 20Q;
+  block-size: auto;
+  margin-block: 2Q;
+  margin-inline: 0;
   padding: 4Q 6Q;
-  border-radius: 4Q;
-  background: var(--color-panel-strong);
+  border-radius: 5px;
+  background: #999;
   color: #fff;
   font-family: var(--font-ui);
   font-size: 12Q;
   font-weight: 700;
-  line-height: 16Q;
+  line-height: 12Q;
   overflow-wrap: anywhere;
 }
 
@@ -485,8 +638,9 @@ section.scenario-block,
 .data-fields__item > dd {
   flex: 1 1 auto;
   min-inline-size: 0;
-  margin: 0;
-  padding-block: 4Q;
+  margin-block: 0;
+  margin-inline-start: 8Q;
+  padding: 0;
   font-size: 16Q;
   line-height: 24Q;
   overflow-wrap: anywhere;
@@ -505,27 +659,18 @@ section.scenario-block,
 }
 
 .data-fields .data-fields {
-  margin-block: var(--space-1);
-}
-
-.data-fields .data-fields__item {
-  gap: 4Q;
-}
-
-.data-fields .data-fields__item > dt {
-  flex-basis: 24mm;
-  min-inline-size: 24mm;
+  margin-block: 4Q;
 }
 
 ul,
 ol {
-  margin-block: 0 var(--space-3);
-  padding-inline-start: 1.45em;
+  margin-block: 0;
+  padding-inline-start: 1.5em;
 }
 
-li {
-  padding-inline-start: var(--space-1);
-  overflow-wrap: anywhere;
+ul li,
+ol li {
+  padding-inline-start: 0.5em;
 }
 
 li > p,
@@ -534,75 +679,110 @@ li > .data-list {
   text-indent: 0;
 }
 
-/* Structured data is intentionally a set of readable panels, not a flattened table. */
+/* Structured YAML uses the same headings and field labels as old enemy sheets. */
 section.structured-data,
 .structured-data {
-  --data-accent: #444;
   display: block;
-  margin-block: var(--space-5);
-  border: var(--rule-medium) solid var(--color-rule);
-  break-before: avoid-page;
-  break-inside: auto;
+  margin-block: 16Q;
   min-inline-size: 0;
+  break-inside: auto;
 }
 
 .structured-data--enemy,
 .structured-data[data-data-kind="enemy"] {
-  border-block-start: 1.5pt double #444;
-}
-
-.structured-data--combo,
-.structured-data[data-data-kind="combo"] {
-  border-block-start: 1.5pt dashed #444;
-  break-inside: avoid-page;
-}
-
-.structured-data[data-data-schema="dx3rd-scenario/enemy"][data-data-version="1"] {
-  break-before: avoid-page;
+  break-before: page;
 }
 
 .structured-data__header {
-  padding-block: var(--space-2);
-  padding-inline: var(--space-3);
-  border-block-end: var(--rule-medium) solid #444;
-  background: #eee;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: transparent;
   break-after: avoid-page;
+}
+
+.structured-data--enemy > .structured-data__header {
+  position: relative;
+  z-index: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  inline-size: 120mm;
+  max-inline-size: 100%;
+  block-size: 25mm;
+  margin-block: 0 3mm;
+  background: #111;
+  color: #fff;
+  font-family: var(--font-display);
+  text-align: center;
+}
+
+.structured-data--enemy > .structured-data__header::before {
+  position: relative;
+  z-index: 1;
+  margin-block-end: 8Q;
+  color: #fff;
+  font-size: 16Q;
+  font-weight: 700;
+  line-height: 16Q;
+  content: "敵データ";
+}
+
+.structured-data--enemy > .structured-data__header::after {
+  position: absolute;
+  z-index: 0;
+  inset: 1mm;
+  border: 0.3mm solid #fff;
+  box-shadow: inset 0 0 0 0.8mm #111, inset 0 0 0 1.1mm #fff;
+  content: "";
+  pointer-events: none;
 }
 
 .structured-data__title {
   margin: 0;
   color: #000;
-  font-size: 13pt;
+  font-size: 18Q;
   font-weight: 700;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
+  line-height: 24Q;
 }
 
-.structured-data__body {
-  padding-block: var(--space-2) var(--space-3);
-  padding-inline: var(--space-3);
-  min-inline-size: 0;
+.structured-data--enemy .structured-data__title {
+  position: relative;
+  z-index: 1;
+  color: #fff;
+  font-family: var(--font-display);
+  font-size: 32Q;
+  font-weight: 700;
+  line-height: 32Q;
 }
 
 .structured-data__section {
-  margin-block: var(--space-4);
-  break-inside: auto;
+  margin: 0;
   min-inline-size: 0;
-}
-
-.structured-data__section:first-child {
-  margin-block-start: var(--space-2);
+  break-inside: auto;
 }
 
 .structured-data__section-title {
-  margin-block: 0 var(--space-2);
-  padding-block-end: var(--space-1);
+  margin-block: 20Q 6Q;
+  padding: 0;
   color: #000;
-  font-size: 16Q;
+  font-size: 18Q;
   font-weight: 700;
-  line-height: 20Q;
-  border-block-end: 2px dotted #999;
+  line-height: 24Q;
+  border-block-end: 3px dotted #000;
   break-after: avoid-page;
+}
+
+.structured-data__section-title::before,
+.structured-data__title::before {
+  content: none;
+}
+
+.structured-data__body {
+  margin: 0;
+  padding: 0;
+  min-inline-size: 0;
 }
 
 .structured-data__section[data-data-section="basic"],
@@ -617,77 +797,87 @@ section.structured-data,
 }
 
 .data-list {
-  margin-block: 0 var(--space-3);
-  padding-inline-start: 1.4em;
+  margin-block: 0;
+  padding-inline-start: 1.5em;
 }
 
 .data-list__item {
-  margin-block: var(--space-2);
-  padding-inline-start: var(--space-1);
+  margin-block: 0;
+  padding-inline-start: 0.5em;
   break-inside: avoid-page;
   min-inline-size: 0;
-}
-
-.data-list__item::marker {
-  color: #444;
-  font-family: var(--font-ui);
-  font-weight: 700;
 }
 
 .data-list__item-title,
 .combo-data__title {
-  margin-block: 0 var(--space-1);
+  margin-block: 16Q 4Q;
   color: #000;
   font-size: 16Q;
   font-weight: 700;
-  line-height: 1.35;
-  overflow-wrap: anywhere;
+  line-height: 20Q;
   break-after: avoid-page;
 }
 
 .combo-data {
-  margin-block: var(--space-2);
-  padding: var(--space-2);
-  border: var(--rule-thin) solid #999;
-  background: #eee;
+  position: relative;
+  margin-block: 16Q;
+  padding-block: 24Q 8Q;
+  padding-inline: 8Q;
+  border: 2px solid #999;
+  background: #fff;
   break-inside: avoid-page;
   min-inline-size: 0;
 }
 
+.combo-data::before {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  inset-block-start: -2px;
+  inset-inline-start: -2px;
+  min-inline-size: 30mm;
+  block-size: 20Q;
+  padding-inline: 24Q;
+  background: #999;
+  color: #fff;
+  font-size: 12Q;
+  font-weight: 700;
+  line-height: 20Q;
+  content: "コンボ";
+}
+
 .combo-data__title {
-  font-size: 16Q;
+  margin-block-start: 0;
+  padding-block-end: 4Q;
+  border-block-end: 2px dotted #999;
 }
 
 .data-reference-list {
-  margin-block: var(--space-2) 0;
-  padding-block: var(--space-1);
-  padding-inline-start: 1.5em;
-  border-block-start: var(--rule-thin) solid var(--color-rule-light);
+  margin-block: 0;
+  padding: 0;
+  border: 0;
   break-inside: avoid;
 }
 
-.data-reference-list[data-region="effect-references"] {
-  border-block-start-style: dashed;
-}
-
+.data-reference-list[data-region="effect-references"],
 .data-reference-list[data-region="item-references"] {
-  border-block-start-style: dotted;
+  break-inside: avoid;
 }
 
 .data-reference-list li {
   break-inside: avoid;
 }
 
-/* Tables retain headers and keep rows intact across pages. */
+/* Tables retain gift's compact black rules; only pagination safety is added. */
 table {
   inline-size: 100%;
   max-inline-size: 100%;
-  margin-block: var(--space-4);
+  margin-block: 16Q;
   border-collapse: collapse;
-  border-block: var(--rule-medium) solid var(--color-rule);
+  border-spacing: 0;
+  border-block: 1px solid #000;
   font-size: 14Q;
-  line-height: 1.4;
-  text-align: start;
+  text-align: left;
   break-inside: auto;
 }
 
@@ -713,23 +903,12 @@ tr {
   page-break-inside: avoid;
 }
 
-th,
-td {
-  padding-block: var(--space-1);
-  padding-inline: var(--space-2);
-  border-block-end: var(--rule-thin) solid var(--color-rule-light);
-  vertical-align: top;
-  overflow-wrap: anywhere;
-}
-
 th {
-  color: #000;
-  font-family: var(--font-ui);
-  font-weight: 700;
-  text-align: start;
-  background: transparent;
+  border-block-end: 1px solid #000;
+  text-align: left;
 }
 
+/* Standard Markdown extensions without a legacy gift counterpart. */
 blockquote {
   margin-block: var(--space-4);
   margin-inline: 0;
@@ -738,10 +917,6 @@ blockquote {
   border-inline-start: 1.2mm solid var(--color-rule);
   background: var(--color-panel);
   break-inside: avoid-page;
-}
-
-blockquote p {
-  text-indent: 0;
 }
 
 pre,
@@ -759,7 +934,7 @@ code {
 pre {
   margin-block: var(--space-4);
   padding: var(--space-2);
-  border: var(--rule-thin) solid var(--color-rule-light);
+  border: 0.4pt solid var(--color-rule-light);
   background: var(--color-panel);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
@@ -770,20 +945,6 @@ pre {
 a {
   color: #000;
   text-decoration: none;
-  overflow-wrap: anywhere;
-  word-break: break-word;
-}
-
-a.structured-data-reference[data-link-kind="structured-data"],
-a[data-link-kind="structured-data"] {
-  font-weight: 700;
-}
-
-a[data-link-kind="internal"],
-a[data-link-kind="cross-document"],
-a[data-link-kind="external"],
-a[data-link-kind="toc"] {
-  overflow-wrap: anywhere;
 }
 
 a[data-link-kind="internal"]::after {
@@ -794,21 +955,14 @@ table a[data-link-kind="internal"]::after {
   content: "";
 }
 
-a[data-data-kind="enemy"] {
-  text-decoration-style: solid;
-}
-
-a[data-data-kind="combo"] {
-  text-decoration-style: dashed;
-}
-
+/* A standard Markdown hr remains visible; legacy hidden page-wrap is not used. */
 hr {
   margin-block: var(--space-5);
   border: 0;
-  border-block-start: var(--rule-medium) solid var(--color-rule);
+  border-block-start: 0.8pt solid var(--color-rule);
 }
 
-/* Print safety for compact inline content and the long identifiers in YAML data. */
+/* Safety is limited to machine identifiers and field values, not ordinary prose. */
 [data-document-id],
 [data-section-id],
 [data-block-id],

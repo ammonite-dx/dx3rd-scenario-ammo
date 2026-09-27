@@ -23,6 +23,12 @@ def normalize_for_comparison(value: str) -> str:
     return unicodedata.normalize("NFKC", value)
 
 
+def normalize_title_for_comparison(value: str) -> str:
+    """Ignore whitespace inserted between PDF glyph runs when matching titles."""
+
+    return "".join(normalize_for_comparison(value).split())
+
+
 def find_error_page_markers(text: str) -> list[str]:
     normalized_text = normalize_for_comparison(text).casefold()
     return [
@@ -33,11 +39,11 @@ def find_error_page_markers(text: str) -> list[str]:
 
 
 def find_missing_titles(text: str, titles: list[str]) -> list[str]:
-    normalized_text = normalize_for_comparison(text)
+    normalized_text = normalize_title_for_comparison(text)
     return [
         title
         for title in titles
-        if normalize_for_comparison(title) not in normalized_text
+        if normalize_title_for_comparison(title) not in normalized_text
     ]
 
 

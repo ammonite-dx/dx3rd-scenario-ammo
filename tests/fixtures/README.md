@@ -2,6 +2,29 @@
 
 このディレクトリは、docs/syntax.md に定めるMarkdown正本の入力契約を固定する。各Markdownファイルは単独で検証できる章文書とし、valid/ は成功入力、invalid/ は診断対象の失敗入力である。
 
+## gift-op1 visual parity
+
+`visual/gift-op1-parity.md` is a visual QA fixture based on the reader-facing
+content of `gift/manuscripts/op1.md` and pages 11–12 of `gift/gift.pdf`. It is
+intentionally separate from `valid/` and `invalid/`: it is neither a parser
+conformance case nor a production manuscript. It uses the current frontmatter,
+plain Markdown paragraphs and headings, and the current `roleplay` and
+`dialogue` blocks; it does not use the old `:::rp` / `:::serif` forms, hidden
+page-wraps, or a replacement extension.
+
+The fixture-only `visual/build.config.json` selects only this chapter and
+does not change the production `build.config.json`. Reproduce the A5 PDF with:
+
+```text
+npm run build:pdf -- --config tests/fixtures/visual/build.config.json --paper a5
+```
+
+The hidden page break and old replacement-generated metadata chips are
+intentionally omitted. Font availability and pagination can therefore differ;
+compare the heading, panel, field-label, line-spacing, and page-break behavior
+visually rather than requiring pixel identity. See
+[`docs/gift-css-port-map.md`](../../docs/gift-css-port-map.md).
+
 ## 共通方針
 
 - ファイル名とディレクトリ名は小文字ASCIIとハイフンだけを使い、本文はUTF-8で保存する。

@@ -66,7 +66,7 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(a4).toContain("size: A4 portrait");
   });
 
-  it("uses gift-like A5 page furniture and Japanese typography", () => {
+  it("ports gift A5 page furniture and Japanese typography", () => {
     const css = readThemeFile("theme.css");
 
     expect(css).toContain("margin: 14mm");
@@ -77,6 +77,7 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(css).not.toContain("@bottom-left");
     expect(css).not.toContain("@bottom-right");
     expect(css).toContain("counter(page)");
+    expect(css).toContain("content: string(document-id)");
     expect(css).toContain("writing-mode: vertical-rl");
     expect(css).toContain("text-orientation: sideways");
     expect(css).toContain("--font-body: \"Noto Sans JP\"");
@@ -84,15 +85,17 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(css).toContain("--font-size-body: 16Q");
     expect(css).toContain("--line-height-body: 28Q");
     expect(css).toContain("text-align: justify");
-    expect(css).toContain("text-spacing-trim: trim-start");
+    expect(css).toContain("text-spacing-trim: normal");
+    expect(css).toContain("text-autospace: no-autospace");
     expect(css).toContain("hanging-punctuation: allow-end");
     expect(css).toContain("string-set: document-title content(text)");
     expect(css).toContain("string-set: section-title content(text)");
     expect(css).toContain("string-set: document-id attr(data-document-id)");
     expect(css).toContain("line-break: strict");
-    expect(css).toContain("overflow-wrap: anywhere");
-    expect(css).toContain("orphans: 2");
-    expect(css).toContain("widows: 2");
+    expect(css).toContain("[data-enemy-id]");
+    expect(css).toContain("orphans: 1");
+    expect(css).toContain("widows: 1");
+    expect(css).not.toMatch(/^\s*text-spacing\s*:/mu);
     expect(css).toContain("font-family: var(--font-body)");
     expect(css).toContain("font-family: var(--font-ui)");
     expect(css).toContain("font-family: var(--font-mono)");
@@ -100,19 +103,20 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(css).not.toMatch(/@font-face/iu);
   });
 
-  it("builds a CSS-only black chapter band and dotted black section headings", () => {
+  it("keeps the chapter-band geometry and gift heading rules without network assets", () => {
     const css = readThemeFile("theme.css");
 
     expect(css).toContain(".document-header::before");
     expect(css).toContain(".document-header::after");
     expect(css).toContain("inline-size: 120mm");
-    expect(css).toContain("min-block-size: 25mm");
+    expect(css).toContain("block-size: 25mm");
     expect(css).toContain("break-before: page");
     expect(css).toContain("font-size: 32Q");
     expect(css).toContain("border-block-end: 3px dotted #000");
     expect(css).toContain('content: "▼ "');
     expect(css).toContain('content: "● "');
     expect(css).not.toContain("background-image");
+    expect(css).not.toMatch(/https?:\/\//iu);
   });
 
   it("covers the semantic document, section, narrative, field, and media contract", () => {
@@ -161,7 +165,7 @@ describe("scenario A5 Vivliostyle Theme", () => {
     for (const selector of selectors) expectSelector(css, selector);
   });
 
-  it("covers all narrative kinds with monochrome panels and preserves check state", () => {
+  it("covers all narrative kinds with gift panels and preserves check state without changing its frame", () => {
     const css = readThemeFile("theme.css");
     const kinds = ["dialogue", "roleplay", "choice", "check", "info", "e-lois", "battle"];
     for (const kind of kinds) {
@@ -173,12 +177,27 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(css).toContain("background: #eee");
     expect(css).toContain("background: #fff");
     expect(css).toContain("border: 2px solid #999");
-    expect(css).toContain("border-style: double");
-    expect(css).toContain("border-block-style: dashed");
+    expect(css).toContain('content: "セリフ:"');
+    expect(css).toContain('content: "ロールプレイ:"');
+    expect(css).toContain('content: "選択:"');
+    expect(css).toContain('content: "判定"');
+    expect(css).toContain('content: "情報収集"');
+    expect(css).toContain('content: "Eロイス"');
+    expect(css).toContain('content: "戦闘"');
+    expect(css).toContain('content: "コンボ"');
+    expect(css).toContain(".scenario-block--battle:has(.structured-data--enemy)");
+    expect(css).toContain("min-block-size: 24Q");
+    expect(css).toContain("margin-block-end: 8Q");
+    expect(css).toContain("display: flex");
+    expect(css).toContain("align-items: center");
+    expect(css).toContain("break-inside: avoid-page");
+    expect(css).toContain("border-style: solid");
+    expect(css).not.toContain("border-style: double");
+    expect(css).not.toContain("border-block-style: dashed");
     expect(css).toContain("border-block-end: 2px dotted #999");
   });
 
-  it("uses grayscale colors and gift-like data-key chips without losing repeated fields", () => {
+  it("ports gift data-key chips without losing repeated fields", () => {
     const css = readThemeFile("theme.css");
     const colors = css.match(/#[\da-f]{3,8}\b/giu) ?? [];
 
@@ -186,9 +205,9 @@ describe("scenario A5 Vivliostyle Theme", () => {
     for (const color of colors) expect(isMonochromeHexColor(color), `${color} is not grayscale`).toBe(true);
     expect(css).toContain("flex: 0 0 30mm");
     expect(css).toContain("min-inline-size: 30mm");
-    expect(css).toContain("border-radius: 4Q");
-    expect(css).toContain("--color-panel-strong: #757575");
-    expect(css).toContain("background: var(--color-panel-strong)");
+    expect(css).toContain("border-radius: 5px");
+    expect(css).toContain("--color-label: #999");
+    expect(css).toContain("background: #999");
     expect(css).toContain("color: #fff");
     expect(css).toContain(".field-list__item > dd");
     expect(css).toContain(".data-fields__item > dd");
@@ -231,5 +250,40 @@ describe("scenario A5 Vivliostyle Theme", () => {
     ]) {
       expect(rendered.html).toContain(selector);
     }
+  });
+
+  it("keeps the visual parity manuscript in current natural Markdown", () => {
+    const source = readProjectFile("tests/fixtures/visual/gift-op1-parity.md");
+    const config = JSON.parse(readProjectFile("tests/fixtures/visual/build.config.json")) as {
+      chapters: string[];
+      themes: { a5: string; a4: string };
+      output: { pdf: { a5: string; a4: string } };
+    };
+    expect(config.chapters).toEqual(["tests/fixtures/visual/gift-op1-parity.md"]);
+    expect(config.themes.a5).toBe("themes/scenario-a5/theme.css");
+    expect(config.themes.a4).toBe("themes/scenario-a5/theme-a4.css");
+    expect(config.output.pdf.a5).toBe("generated/pdf/gift-op1-parity-a5.pdf");
+    expect(source).not.toContain(":::rp");
+    expect(source).not.toContain(":::serif");
+    expect(source).not.toContain("{.scene-title}");
+    expect(source.match(/^---\s*$/gmu)).toHaveLength(2);
+
+    const parsed = parseScenarioMarkdown(source, "tests/fixtures/visual/gift-op1-parity.md");
+    expect(parsed.ok, parsed.ok ? "" : parsed.diagnostics.map((diagnostic) => diagnostic.message).join("; ")).toBe(true);
+    if (!parsed.ok) return;
+
+    const rendered = renderScenarioHtmlFragment(parsed.document);
+    expect(rendered.ok).toBe(true);
+    if (!rendered.ok) return;
+    expect(rendered.html).toContain("オープニングフェイズ・シーン1");
+    expect(rendered.html).toContain("Gift from God");
+    expect(rendered.html).toContain("日時");
+    expect(rendered.html).toContain("シーンプレイヤー");
+    expect(rendered.html).toContain("解説");
+    expect(rendered.html).toContain("描写1");
+    expect(rendered.html).toContain("描写2");
+    expect(rendered.html).toContain("結末");
+    expect(rendered.html).toContain('data-block-kind="roleplay"');
+    expect(rendered.html).toContain('data-block-kind="dialogue"');
   });
 });

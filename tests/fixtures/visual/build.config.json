@@ -1,0 +1,19 @@
+{
+  "title": "gift OP-01 visual parity",
+  "chapters": [
+    "tests/fixtures/visual/gift-op1-parity.md"
+  ],
+  "themes": {
+    "a5": "themes/scenario-a5/theme.css",
+    "a4": "themes/scenario-a5/theme-a4.css"
+  },
+  "output": {
+    "html": "generated/html/gift-op1-parity.html",
+    "pdf": {
+      "a5": "generated/pdf/gift-op1-parity-a5.pdf",
+      "a4": "generated/pdf/gift-op1-parity-a4.pdf"
+    }
+  },
+  "vivliostyleConfig": "vivliostyle.config.js",
+  "workspaceDir": "generated/.vivliostyle-gift-op1-parity"
+}
