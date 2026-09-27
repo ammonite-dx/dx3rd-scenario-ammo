@@ -52,6 +52,8 @@ npm run build:pdf -- --output tmp/pdfs/current-sample-a5.pdf
 
 ## 資産・フォントと再現性
 
+PDF内部のメタデータ・埋め込みフォント・Vivliostyle版差の監査結果は[旧gift PDFのレンダリング監査](gift-rendering-audit.md)を参照。
+
 - 旧ThemeはCSSからGoogle FontsのNoto Sans JP、Noto Serif JP、Material Symbols Outlinedをネットワーク読み込みする。現行Themeはフォント名のフォールバック列を定義するが、フォントファイルを同梱せず、外部読込もしない。したがって現在の経路は外部接続への依存を避ける一方、PC間で同じフォントが選ばれる保証はまだない。
 - Noto CJKの公式ライセンスはSIL Open Font License 1.1、Google Material Symbolsの配布元はApache License 2.0としている（[Noto CJK license](https://github.com/notofonts/noto-cjk/blob/main/Sans/LICENSE)、[Google Material Symbols repository](https://github.com/google/material-design-icons)）。将来フォントや選択アイコンを同梱する場合は、各ファイルのライセンス・同梱条件・必要な著作権表示を保ち、バージョンを固定する。
 - 旧Theme packageは `MIT` を宣言し、リポジトリ内に `LICENSE` がある。ただし `package.json` の `files` に `img/` が含まれていない。`section-title.png` は旧リポジトリ上にあるが、画像単体の来歴・権利表示を確認してから新Themeへ複製・再配布する。MIT宣言だけで画像の個別来歴まで確認済みとはみなさない。
