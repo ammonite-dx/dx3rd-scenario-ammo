@@ -48,23 +48,20 @@
 
 @page :right {
   @right-middle {
-    content: string(document-id);
+    content: string(document-id) ": " string(document-title);
     writing-mode: vertical-rl;
     text-orientation: sideways;
     vertical-align: top;
   }
 }
 
-*,
-*::before,
-*::after {
+* {
   box-sizing: border-box;
 }
 
 html[data-html-contract="dx3rd-scenario/v1"] {
   color: var(--color-ink);
   background: #fff;
-  line-break: strict;
   /* Closest current CSS Text mapping for gift's legacy text-spacing: allow-end. */
   text-spacing-trim: normal;
   text-autospace: no-autospace;
@@ -130,7 +127,6 @@ main.document {
   font-weight: 700;
   text-align: center;
   break-before: page;
-  break-after: avoid-page;
 }
 
 /* The old PNG is intentionally deferred; these CSS-only rules keep its box. */
@@ -138,6 +134,7 @@ main.document {
 .document-header::after {
   position: absolute;
   z-index: 0;
+  box-sizing: border-box;
   content: "";
   border: 0.3mm solid #fff;
   pointer-events: none;
@@ -175,7 +172,6 @@ main.document {
   font-size: 32Q;
   font-weight: 700;
   line-height: 32Q;
-  break-after: avoid-page;
 }
 
 .document-body {
@@ -220,9 +216,6 @@ section.document-section {
   font-weight: 700;
   line-height: 24Q;
   border-block-end: 3px dotted #000;
-  break-before: avoid-page;
-  break-after: avoid-page;
-  break-inside: avoid;
   margin-break: auto;
 }
 
@@ -251,8 +244,6 @@ h6 {
   margin-block: 0;
   font-family: var(--font-ui);
   color: #000;
-  break-after: avoid-page;
-  break-inside: avoid;
 }
 
 h2 {
@@ -356,17 +347,13 @@ section.scenario-block,
   margin-block: 16Q;
   padding: 8Q;
   background: #eee;
-  break-inside: avoid-page;
-  page-break-inside: avoid;
-  orphans: 1;
-  widows: 1;
+  break-inside: avoid;
 }
 
 .scenario-block__header {
-  position: relative;
+  position: static;
   margin: 0;
   padding: 0;
-  break-after: avoid-page;
 }
 
 .scenario-block__title {
@@ -379,27 +366,44 @@ section.scenario-block,
   line-height: 20Q;
 }
 
-/* Gift's prose-panel heading has a 24Q flex row and an 8Q lower gap. */
+/* The kind label is real text; icons remain decorative and are still deferred. */
+.scenario-block__kind-label,
+.combo-data__kind-label {
+  box-sizing: content-box;
+}
+
+.scenario-block__kind-label {
+  color: #000;
+  font-family: var(--font-ui);
+  font-size: 16Q;
+  font-weight: 700;
+  line-height: 20Q;
+}
+
+/* Gift's prose-panel heading has a 24Q flex row, label inset, and 8Q gap. */
 .scenario-block--dialogue .scenario-block__header,
 .scenario-block--roleplay .scenario-block__header,
 .scenario-block--choice .scenario-block__header,
 .scenario-block[data-block-kind="dialogue"] .scenario-block__header,
 .scenario-block[data-block-kind="roleplay"] .scenario-block__header,
 .scenario-block[data-block-kind="choice"] .scenario-block__header {
-  margin-block-end: 8Q;
-}
-
-.scenario-block--dialogue .scenario-block__title,
-.scenario-block--roleplay .scenario-block__title,
-.scenario-block--choice .scenario-block__title,
-.scenario-block[data-block-kind="dialogue"] .scenario-block__title,
-.scenario-block[data-block-kind="roleplay"] .scenario-block__title,
-.scenario-block[data-block-kind="choice"] .scenario-block__title {
   display: flex;
   align-items: center;
   min-block-size: 24Q;
+  margin-block-end: 8Q;
   padding-block-end: 4Q;
   border-block-end: 2px dotted #999;
+}
+
+.scenario-block--dialogue .scenario-block__kind-label,
+.scenario-block--roleplay .scenario-block__kind-label,
+.scenario-block--choice .scenario-block__kind-label,
+.scenario-block[data-block-kind="dialogue"] .scenario-block__kind-label,
+.scenario-block[data-block-kind="roleplay"] .scenario-block__kind-label,
+.scenario-block[data-block-kind="choice"] .scenario-block__kind-label {
+  flex: 0 0 auto;
+  margin-inline-start: 24Q;
+  margin-inline-end: 4Q;
 }
 
 /* The four information-panel headings inherit the plain gift h4 geometry. */
@@ -429,35 +433,6 @@ section.scenario-block,
   min-inline-size: 0;
 }
 
-/* Generated labels restore gift's labels without adding source attributes. */
-.scenario-block--dialogue .scenario-block__title::before,
-.scenario-block[data-block-kind="dialogue"] .scenario-block__title::before {
-  margin-inline-start: 24Q;
-  margin-inline-end: 4Q;
-  content: "セリフ:";
-}
-
-.scenario-block--roleplay .scenario-block__title::before,
-.scenario-block[data-block-kind="roleplay"] .scenario-block__title::before {
-  margin-inline-start: 24Q;
-  margin-inline-end: 4Q;
-  content: "ロールプレイ:";
-}
-
-.scenario-block--choice .scenario-block__title::before,
-.scenario-block[data-block-kind="choice"] .scenario-block__title::before {
-  margin-inline-start: 24Q;
-  margin-inline-end: 4Q;
-  content: "選択:";
-}
-
-.scenario-block--check .scenario-block__title::before,
-.scenario-block--info .scenario-block__title::before,
-.scenario-block--e-lois .scenario-block__title::before,
-.scenario-block--battle .scenario-block__title::before {
-  content: none;
-}
-
 .scenario-block--dialogue,
 .scenario-block--roleplay,
 .scenario-block--choice,
@@ -484,14 +459,14 @@ section.scenario-block,
   background: #fff;
 }
 
-.scenario-block--check::before,
-.scenario-block--info::before,
-.scenario-block--e-lois::before,
-.scenario-block--battle::before,
-.scenario-block[data-block-kind="check"]::before,
-.scenario-block[data-block-kind="info"]::before,
-.scenario-block[data-block-kind="e-lois"]::before,
-.scenario-block[data-block-kind="battle"]::before {
+.scenario-block--check .scenario-block__kind-label,
+.scenario-block--info .scenario-block__kind-label,
+.scenario-block--e-lois .scenario-block__kind-label,
+.scenario-block--battle .scenario-block__kind-label,
+.scenario-block[data-block-kind="check"] .scenario-block__kind-label,
+.scenario-block[data-block-kind="info"] .scenario-block__kind-label,
+.scenario-block[data-block-kind="e-lois"] .scenario-block__kind-label,
+.scenario-block[data-block-kind="battle"] .scenario-block__kind-label {
   position: absolute;
   display: flex;
   align-items: center;
@@ -505,26 +480,6 @@ section.scenario-block,
   font-size: 12Q;
   font-weight: 700;
   line-height: 20Q;
-}
-
-.scenario-block--check::before,
-.scenario-block[data-block-kind="check"]::before {
-  content: "判定";
-}
-
-.scenario-block--info::before,
-.scenario-block[data-block-kind="info"]::before {
-  content: "情報収集";
-}
-
-.scenario-block--e-lois::before,
-.scenario-block[data-block-kind="e-lois"]::before {
-  content: "Eロイス";
-}
-
-.scenario-block--battle::before,
-.scenario-block[data-block-kind="battle"]::before {
-  content: "戦闘";
 }
 
 /*
@@ -538,14 +493,10 @@ section.scenario-block,
   border: 0;
   background: transparent;
   break-inside: avoid-page;
-  page-break-inside: avoid;
-}
-
-.scenario-block--battle:has(.structured-data--enemy)::before {
-  content: none;
 }
 
 .scenario-block--battle:has(.structured-data--enemy) > .scenario-block__header {
+  position: relative;
   margin-block: 16Q 0;
   padding: 24Q 8Q 4Q;
   border: 2px solid #999;
@@ -555,23 +506,6 @@ section.scenario-block,
 
 .scenario-block--battle:has(.structured-data--enemy) > .scenario-block__header > .scenario-block__title {
   border-block-end: 0;
-}
-
-.scenario-block--battle:has(.structured-data--enemy) > .scenario-block__header::before {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  inset-block-start: -2px;
-  inset-inline-start: -2px;
-  min-inline-size: 30mm;
-  block-size: 20Q;
-  padding-inline: 24Q;
-  background: #999;
-  color: #fff;
-  font-size: 12Q;
-  font-weight: 700;
-  line-height: 20Q;
-  content: "戦闘";
 }
 
 .scenario-block--battle:has(.structured-data--enemy) .scenario-block__body > .field-list {
@@ -685,7 +619,6 @@ section.structured-data,
   display: block;
   margin-block: 16Q;
   min-inline-size: 0;
-  break-inside: auto;
 }
 
 .structured-data--enemy,
@@ -698,6 +631,7 @@ section.structured-data,
   padding: 0;
   border: 0;
   background: transparent;
+  /* Keep each YAML sheet title with its first section heading. */
   break-after: avoid-page;
 }
 
@@ -732,6 +666,7 @@ section.structured-data,
 .structured-data--enemy > .structured-data__header::after {
   position: absolute;
   z-index: 0;
+  box-sizing: border-box;
   inset: 1mm;
   border: 0.3mm solid #fff;
   box-shadow: inset 0 0 0 0.8mm #111, inset 0 0 0 1.1mm #fff;
@@ -760,7 +695,6 @@ section.structured-data,
 .structured-data__section {
   margin: 0;
   min-inline-size: 0;
-  break-inside: auto;
 }
 
 .structured-data__section-title {
@@ -771,6 +705,7 @@ section.structured-data,
   font-weight: 700;
   line-height: 24Q;
   border-block-end: 3px dotted #000;
+  /* Keep a data-section heading with its first field/list row. */
   break-after: avoid-page;
 }
 
@@ -785,17 +720,6 @@ section.structured-data,
   min-inline-size: 0;
 }
 
-.structured-data__section[data-data-section="basic"],
-.structured-data__section[data-data-section="abilities"],
-.structured-data__section[data-data-section="effects"],
-.structured-data__section[data-data-section="items"],
-.structured-data__section[data-data-section="lois"],
-.structured-data__section[data-data-section="d-lois"],
-.structured-data__section[data-data-section="e-lois"],
-.structured-data__section[data-data-section="combos"] {
-  break-inside: auto;
-}
-
 .data-list {
   margin-block: 0;
   padding-inline-start: 1.5em;
@@ -804,7 +728,6 @@ section.structured-data,
 .data-list__item {
   margin-block: 0;
   padding-inline-start: 0.5em;
-  break-inside: avoid-page;
   min-inline-size: 0;
 }
 
@@ -815,6 +738,7 @@ section.structured-data,
   font-size: 16Q;
   font-weight: 700;
   line-height: 20Q;
+  /* Keep each structured data item heading with its content. */
   break-after: avoid-page;
 }
 
@@ -825,11 +749,11 @@ section.structured-data,
   padding-inline: 8Q;
   border: 2px solid #999;
   background: #fff;
-  break-inside: avoid-page;
+  break-inside: avoid;
   min-inline-size: 0;
 }
 
-.combo-data::before {
+.combo-data__kind-label {
   position: absolute;
   display: flex;
   align-items: center;
@@ -843,7 +767,6 @@ section.structured-data,
   font-size: 12Q;
   font-weight: 700;
   line-height: 20Q;
-  content: "コンボ";
 }
 
 .combo-data__title {
@@ -856,16 +779,6 @@ section.structured-data,
   margin-block: 0;
   padding: 0;
   border: 0;
-  break-inside: avoid;
-}
-
-.data-reference-list[data-region="effect-references"],
-.data-reference-list[data-region="item-references"] {
-  break-inside: avoid;
-}
-
-.data-reference-list li {
-  break-inside: avoid;
 }
 
 /* Tables retain gift's compact black rules; only pagination safety is added. */
@@ -878,7 +791,6 @@ table {
   border-block: 1px solid #000;
   font-size: 14Q;
   text-align: left;
-  break-inside: auto;
 }
 
 caption {
@@ -900,7 +812,6 @@ tfoot {
 
 tr {
   break-inside: avoid;
-  page-break-inside: avoid;
 }
 
 th {
@@ -916,7 +827,6 @@ blockquote {
   padding-inline: var(--space-3);
   border-inline-start: 1.2mm solid var(--color-rule);
   background: var(--color-panel);
-  break-inside: avoid-page;
 }
 
 pre,
@@ -939,7 +849,6 @@ pre {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   word-break: break-word;
-  break-inside: avoid-page;
 }
 
 a {
@@ -960,19 +869,4 @@ hr {
   margin-block: var(--space-5);
   border: 0;
   border-block-start: 0.8pt solid var(--color-rule);
-}
-
-/* Safety is limited to machine identifiers and field values, not ordinary prose. */
-[data-document-id],
-[data-section-id],
-[data-block-id],
-[data-block-kind],
-[data-field-key],
-[data-enemy-id],
-[data-combo-id],
-[data-entry-id],
-[data-ability-id],
-[data-effect-id],
-[data-item-id] {
-  overflow-wrap: anywhere;
 }

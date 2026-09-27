@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import re
 import sys
 import unicodedata
 from pathlib import Path
@@ -23,10 +24,23 @@ def normalize_for_comparison(value: str) -> str:
     return unicodedata.normalize("NFKC", value)
 
 
-def normalize_title_for_comparison(value: str) -> str:
-    """Ignore whitespace inserted between PDF glyph runs when matching titles."""
+def title_match_pattern(title: str) -> re.Pattern[str]:
+    """Allow PDF glyph-run spacing while preserving spaces in the expected title."""
 
-    return "".join(normalize_for_comparison(value).split())
+    normalized = normalize_for_comparison(title)
+    parts: list[str] = []
+    previous_was_space = True
+    for character in normalized:
+        if character.isspace():
+            if not previous_was_space:
+                parts.append(r"\s+")
+            previous_was_space = True
+            continue
+        if parts and not previous_was_space:
+            parts.append(r"\s*")
+        parts.append(re.escape(character))
+        previous_was_space = False
+    return re.compile("".join(parts))
 
 
 def find_error_page_markers(text: str) -> list[str]:
@@ -39,11 +53,11 @@ def find_error_page_markers(text: str) -> list[str]:
 
 
 def find_missing_titles(text: str, titles: list[str]) -> list[str]:
-    normalized_text = normalize_title_for_comparison(text)
+    normalized_text = normalize_for_comparison(text)
     return [
         title
         for title in titles
-        if normalize_title_for_comparison(title) not in normalized_text
+        if title_match_pattern(title).search(normalized_text) is None
     ]
 
 

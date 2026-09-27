@@ -160,8 +160,9 @@ MVPの7種類はすべて`section.scenario-block`として出力する。
   class="scenario-block scenario-block--dialogue"
   data-block-id="block-md-04-01-01"
   data-block-kind="dialogue"
-  aria-labelledby="block-md-04-01-01-title">
+  aria-labelledby="block-md-04-01-01-kind block-md-04-01-01-title">
   <header class="scenario-block__header" data-region="block-header">
+    <span id="block-md-04-01-01-kind" class="scenario-block__kind-label" data-region="block-kind">セリフ:</span>
     <h3 id="block-md-04-01-01-title" class="scenario-block__title">渚</h3>
   </header>
   <div class="scenario-block__body" data-region="block-body">
@@ -173,7 +174,8 @@ MVPの7種類はすべて`section.scenario-block`として出力する。
 - `id`と`data-block-id`は同じ不透明なアンカーを保持し、文書内で一意にする。
 - 共通クラス`scenario-block`、modifierクラス`scenario-block--{kind}`、`data-block-kind`を必須とする。意味の正本は`data-block-kind`である。
 - 開始行の検証済み表示タイトルを`scenario-block__title`へ出力する。入力の`:::`、ブロック名、フェンス行全体、attribute-listを本文テキストとして出力しない。
-- `aria-labelledby`はブロック見出しIDを参照する。
+- 表示ラベルは`data-block-kind`から決定し、`span.scenario-block__kind-label[data-region="block-kind"]`の通常のDOMテキストとして出力する。ラベル記法をMarkdownへ加えず、ThemeのCSS生成contentにも依存しない。
+- `aria-labelledby`はラベルIDとブロック見出しIDをこの順で参照する。Themeは通常テキストの位置・装飾のみを担う。
 - 本文と専用フィールドは`scenario-block__body`内に入力順で置く。
 - 見出しランクは配置された論理階層の次のランクにし、見た目のために常に`h4`へ固定しない。
 - narrative block同士は入れ子にしない。本文中の通常Markdown見出しは入力の論理階層を保つ。
@@ -181,15 +183,17 @@ MVPの7種類はすべて`section.scenario-block`として出力する。
 
 ### 6.2 7種類の語彙
 
-| `data-block-kind` | modifierクラス | 意味 |
-| --- | --- | --- |
-| `dialogue` | `scenario-block--dialogue` | 登場人物等の台詞・会話。 |
-| `roleplay` | `scenario-block--roleplay` | 自由な演技場面や進行指示。 |
-| `choice` | `scenario-block--choice` | 選択、分岐、選択後の進行。 |
-| `check` | `scenario-block--check` | 1つの判定と結果。 |
-| `info` | `scenario-block--info` | GM向け情報、補足、複数の情報収集項目。 |
-| `e-lois` | `scenario-block--e-lois` | Eロイスに関する処理や説明。 |
-| `battle` | `scenario-block--battle` | 戦闘の進行、配置、終了条件、データ参照。 |
+| `data-block-kind` | modifierクラス | DOMラベル | 意味 |
+| --- | --- | --- | --- |
+| `dialogue` | `scenario-block--dialogue` | セリフ: | 登場人物等の台詞・会話。 |
+| `roleplay` | `scenario-block--roleplay` | ロールプレイ: | 自由な演技場面や進行指示。 |
+| `choice` | `scenario-block--choice` | 選択: | 選択、分岐、選択後の進行。 |
+| `check` | `scenario-block--check` | 判定 | 1つの判定と結果。 |
+| `info` | `scenario-block--info` | 情報収集 | GM向け情報、補足、複数の情報収集項目。 |
+| `e-lois` | `scenario-block--e-lois` | Eロイス | Eロイスに関する処理や説明。 |
+| `battle` | `scenario-block--battle` | 戦闘 | 戦闘の進行、配置、終了条件、データ参照。 |
+
+各ラベルは`span.scenario-block__kind-label[data-region="block-kind"]`のテキストとして出力し、Markdown側へ追加記法は求めない。
 
 `choice`の本文は自然文、段落、リスト、表などの通常Markdownをそのまま保持する。`ul`や`ol`が存在しないことを理由にHTML生成を失敗させたり、変換器が選択肢リストを補ったりしてはならない。
 
@@ -266,8 +270,9 @@ MVPの7種類はすべて`section.scenario-block`として出力する。
   data-block-id="block-example-check"
   data-block-kind="check"
   data-check-mandatory="true"
-  aria-labelledby="block-example-check-title">
+  aria-labelledby="block-example-check-kind block-example-check-title">
   <header class="scenario-block__header" data-region="block-header">
+    <span id="block-example-check-kind" class="scenario-block__kind-label" data-region="block-kind">判定</span>
     <h3 id="block-example-check-title" class="scenario-block__title">衝動判定</h3>
   </header>
   <div class="scenario-block__body" data-region="block-body">
@@ -283,13 +288,14 @@ MVPの7種類はすべて`section.scenario-block`として出力する。
 
 ## 8. 要素選択とARIA
 
+- narrative blockの`aria-labelledby`は、ブロック種別ラベル、見出しの順に2つの一意なIDを参照する。
 - `main`は主本文の唯一のルートにする。
 - `header`は文書またはnarrative blockの見出し領域に使い、飾り帯のためだけに追加しない。
 - `section`は見出しを持つ節、narrative block、構造化データの意味的区画に使う。
 - `nav`は目次などのナビゲーションに使う。
 - `aside`は入力ASTが本文から独立した補足を明示した場合だけ使い、`info`を自動的に`aside`へ変換しない。
 - `dialogue`にinteractive roleを付けない。静的な文書に`button`、`dialog`、`tab`等を追加しない。
-- すべての`aria-labelledby`は同じHTML内に存在する一意な見出しIDを参照する。
+- すべての`aria-labelledby`トークンは、同じHTML内に存在する一意なIDを参照する。参照先は見出し要素に限らず、narrative blockとコンボの種別ラベルを含む。
 - 装飾アイコンを追加する場合はThemeの擬似要素または`aria-hidden="true"`の装飾として扱い、見出しのアクセシブル名へ混入させない。
 - リンクの可読名は元のMarkdownラベルを保持する。構造化データ展開がリンク直後にあってもリンクテキストを空にしない。
 
@@ -422,7 +428,7 @@ MVPの7種類はすべて`section.scenario-block`として出力する。
 | `/enemy/lois[]` | `lois`一覧。`data-entry-id`に`id`、項目に`name`、存在する`relation`、`positive_emotion`、`negative_emotion`、`notes`。 |
 | `/enemy/d_lois[]` | `d-lois`一覧。`data-entry-id`に`id`、項目に`name`、存在する`alias`、`description`、`notes`。 |
 | `/enemy/e_lois[]` | `e-lois`一覧。`data-entry-id`に`id`、項目に`name`、`count`、存在する`description`、`notes`。 |
-| `/enemy/combos[]` | `combos`一覧。`data-combo-id`に`id`、`combo-data__title`に`name`、残りは9.4節。 |
+| `/enemy/combos[]` | `combos`一覧。`data-combo-id`に`id`、`combo-data__title`に`name`、種別ラベルは9.4節、残りは同節。 |
 
 `name`を項目見出しに使う一覧でも、元の値は省略されていない。見出しがそのフィールドの意味的な表示先であり、同じ文字列を`dd`へ重複させる必要はない。`id`、`ability_id`、参照IDは正本照合に必要な属性と、上表で表示項目に指定した箇所の両方へ保持する。
 
@@ -430,8 +436,11 @@ MVPの7種類はすべて`section.scenario-block`として出力する。
 
 敵全体内のコンボ項目、およびコンボ単体展開は、同じ意味構造を使う。
 
+コンボ種別ラベル「コンボ」は`span.combo-data__kind-label[data-region="combo-kind"]`のDOMテキストとし、YAMLへ表示用フィールドを追加しない。`aria-labelledby`は種別ラベルID、コンボ名の見出しIDの順に参照する。
+
 ```html
-<article class="combo-data" data-combo-id="iron-claw" aria-labelledby="combo-item-iron-claw-title">
+<article class="combo-data" data-combo-id="iron-claw" aria-labelledby="combo-item-iron-claw-kind combo-item-iron-claw-title">
+  <span id="combo-item-iron-claw-kind" class="combo-data__kind-label" data-region="combo-kind">コンボ</span>
   <h5 id="combo-item-iron-claw-title" class="combo-data__title">鉄爪の一撃</h5>
   <dl class="data-fields" data-region="data-fields">
     <div class="data-fields__item" data-field-key="timing"><dt>タイミング</dt><dd>メジャーアクション</dd></div>
@@ -507,8 +516,9 @@ Themeが文書単位のrunning headerを必要とする場合は、`main.documen
         <h1 id="document-md-04-title" class="document-title">Illegal Gifter</h1>
       </header>
       <div class="document-body" data-region="document-body">
-        <section id="block-md-04-01" class="scenario-block scenario-block--info" data-block-id="block-md-04-01" data-block-kind="info" aria-labelledby="block-md-04-01-title">
+        <section id="block-md-04-01" class="scenario-block scenario-block--info" data-block-id="block-md-04-01" data-block-kind="info" aria-labelledby="block-md-04-01-kind block-md-04-01-title">
           <header class="scenario-block__header" data-region="block-header">
+            <span id="block-md-04-01-kind" class="scenario-block__kind-label" data-region="block-kind">情報収集</span>
             <h2 id="block-md-04-01-title" class="scenario-block__title">野原球児</h2>
           </header>
           <div class="scenario-block__body" data-region="block-body">
@@ -522,8 +532,9 @@ Themeが文書単位のrunning headerを必要とする場合は、`main.documen
           </div>
         </section>
 
-        <section id="block-md-04-02" class="scenario-block scenario-block--check" data-block-id="block-md-04-02" data-block-kind="check" data-check-mandatory="true" aria-labelledby="block-md-04-02-title">
+        <section id="block-md-04-02" class="scenario-block scenario-block--check" data-block-id="block-md-04-02" data-block-kind="check" data-check-mandatory="true" aria-labelledby="block-md-04-02-kind block-md-04-02-title">
           <header class="scenario-block__header" data-region="block-header">
+            <span id="block-md-04-02-kind" class="scenario-block__kind-label" data-region="block-kind">判定</span>
             <h2 id="block-md-04-02-title" class="scenario-block__title">衝動判定</h2>
           </header>
           <div class="scenario-block__body" data-region="block-body">
@@ -542,7 +553,9 @@ Themeが文書単位のrunning headerを必要とする場合は、`main.documen
             <h2 id="combo-sample-warden-iron-claw-title" class="structured-data__title">鉄爪の一撃</h2>
           </header>
           <div class="structured-data__body" data-region="data-body">
-            <article class="combo-data" data-combo-id="iron-claw">
+            <article class="combo-data" data-combo-id="iron-claw" aria-labelledby="combo-item-iron-claw-kind combo-item-iron-claw-title">
+              <span id="combo-item-iron-claw-kind" class="combo-data__kind-label" data-region="combo-kind">コンボ</span>
+              <h5 id="combo-item-iron-claw-title" class="combo-data__title">鉄爪の一撃</h5>
               <dl class="data-fields" data-region="data-fields">
                 <div class="data-fields__item" data-field-key="timing"><dt>タイミング</dt><dd>メジャーアクション</dd></div>
                 <div class="data-fields__item" data-field-key="target"><dt>対象</dt><dd>単体</dd></div>
@@ -589,8 +602,8 @@ Themeが文書単位のrunning headerを必要とする場合は、`main.documen
 HTML文字列の断片一致だけでなくDOMを解析し、少なくとも次を検証する。
 
 1. **文書構造**: 契約識別子、`lang`、唯一の`main.document`、文書ID、通常H1由来の1つの`h1.document-title`、任意kicker、節の入れ子と見出しランク。
-2. **IDとARIA**: 文書・節・ブロック・構造化データのIDが一意で、`data-section-id`/`data-block-id`が対応し、すべての`aria-labelledby`とfragmentリンクの参照先が存在する。
-3. **7語彙**: 7種類の`data-block-kind`とmodifierクラスを検証し、`combo`や`enemy`がscenario blockとして出力されない。
+2. **IDとARIA**: 文書・節・ブロック・構造化データのIDが一意で、`data-section-id`/`data-block-id`が対応し、すべての`aria-labelledby`トークンとfragmentリンクの参照先が存在する。
+3. **7語彙**: 7種類の`data-block-kind`、modifierクラス、対応するDOMラベルと`data-region="block-kind"`を検証し、`combo`や`enemy`がscenario blockとして出力されない。
 4. **表示タイトル**: 開始行の表示タイトルだけが`scenario-block__title`になり、フェンス文字列、attribute-list、入力制御文字列が本文に残らない。
 5. **専用フィールド**: ブロックごとの既知ラベルが`dt`/`dd`と安定したASCII`data-field-key`へ写像され、反復と本文との相対順を保つ。
 6. **`check`**: `skill`、`difficulty`が先頭の`field-list`に1件ずつあり、任意`required`と`data-check-mandatory`が一致する。省略時も`false`が存在し、本文から値を推測しない。

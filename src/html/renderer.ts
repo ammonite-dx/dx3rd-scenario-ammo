@@ -2,6 +2,7 @@ import type {
   CheckBlock,
   MarkdownNode,
   NarrativeBlock,
+  NarrativeBlockName,
   ScenarioDocument,
   ScenarioField,
   SourcePosition,
@@ -45,6 +46,16 @@ const FIELD_KEYS: Readonly<Record<string, string>> = {
   "戦闘終了条件": "battle-end-condition",
   "参照": "reference",
   "備考": "notes",
+};
+
+const NARRATIVE_BLOCK_LABELS: Readonly<Record<NarrativeBlockName, string>> = {
+  dialogue: "セリフ:",
+  roleplay: "ロールプレイ:",
+  choice: "選択:",
+  check: "判定",
+  info: "情報収集",
+  "e-lois": "Eロイス",
+  battle: "戦闘",
 };
 
 const DATA_SECTION_TITLES: Readonly<Record<string, string>> = {
@@ -573,8 +584,18 @@ class Renderer {
 
   private renderBlock(block: NarrativeBlock, parentHeadingLevel: number): Rendered {
     const blockId = this.ids.allocate(numbered(`block-${this.documentSlug}`, ++this.blockIndex));
+    const kindLabelId = this.ids.allocate(`${blockId}-kind`);
     const titleId = this.ids.allocate(`${blockId}-title`);
     const headingLevel = clampHeadingLevel(parentHeadingLevel + 1);
+    const kindLabel = element(
+      "span",
+      [
+        ["id", kindLabelId],
+        ["class", "scenario-block__kind-label"],
+        ["data-region", "block-kind"],
+      ],
+      escapeHtml(NARRATIVE_BLOCK_LABELS[block.name]),
+    );
     const title = element(
       `h${headingLevel}`,
       [["id", titleId], ["class", "scenario-block__title"]],
@@ -583,7 +604,7 @@ class Renderer {
     const header = element(
       "header",
       [["class", "scenario-block__header"], ["data-region", "block-header"]],
-      title,
+      `${kindLabel}\n${title}`,
     );
     const body = this.renderBlockBody(block, headingLevel);
     const attributes: Array<readonly [string, string | undefined]> = [
@@ -595,7 +616,7 @@ class Renderer {
     if (block.name === "check") {
       attributes.push(["data-check-mandatory", block.fields.some((field) => field.label === "必須") ? "true" : "false"]);
     }
-    attributes.push(["aria-labelledby", titleId]);
+    attributes.push(["aria-labelledby", `${kindLabelId} ${titleId}`]);
     return {
       html: element("section", attributes, `${header}\n${body.html}`),
       expansions: body.expansions,
@@ -1220,11 +1241,25 @@ class Renderer {
       const itemAttributes: Array<readonly [string, string | undefined]> = [["data-item-id", itemId]];
       return `<li${attributeText(itemAttributes)}>${escapeHtml(item.name)}</li>`;
     });
+    const comboKindLabelId = this.ids.allocate(`combo-item-${slug(combo.id)}-kind`);
     const comboTitleId = this.ids.allocate(`combo-item-${slug(combo.id)}-title`);
+    const comboKindLabel = element(
+      "span",
+      [
+        ["id", comboKindLabelId],
+        ["class", "combo-data__kind-label"],
+        ["data-region", "combo-kind"],
+      ],
+      "コンボ",
+    );
     const comboData = element(
       "article",
-      [["class", "combo-data"], ["data-combo-id", combo.id], ["aria-labelledby", comboTitleId]],
-      `${element(`h${clampHeadingLevel(headingLevel)}`, [["id", comboTitleId], ["class", "combo-data__title"]], escapeHtml(combo.name))}\n${this.renderDataFields(fields)}\n${element("ol", [["class", "data-reference-list"], ["data-region", "effect-references"]], effects.join("\n"))}\n${element("ol", [["class", "data-reference-list"], ["data-region", "item-references"]], items.join("\n"))}`,
+      [
+        ["class", "combo-data"],
+        ["data-combo-id", combo.id],
+        ["aria-labelledby", `${comboKindLabelId} ${comboTitleId}`],
+      ],
+      `${comboKindLabel}\n${element(`h${clampHeadingLevel(headingLevel)}`, [["id", comboTitleId], ["class", "combo-data__title"]], escapeHtml(combo.name))}\n${this.renderDataFields(fields)}\n${element("ol", [["class", "data-reference-list"], ["data-region", "effect-references"]], effects.join("\n"))}\n${element("ol", [["class", "data-reference-list"], ["data-region", "item-references"]], items.join("\n"))}`,
     );
     return comboData;
   }

@@ -41,6 +41,16 @@ describe("semantic HTML renderer", () => {
       'data-block-kind="e-lois"',
       'data-block-kind="battle"',
     ]);
+    expect([...html.matchAll(/<span\b[^>]*class="scenario-block__kind-label"[^>]*>([^<]*)<\/span>/g)]
+      .map(([, label]) => label?.trim())).toEqual([
+      "セリフ:",
+      "ロールプレイ:",
+      "選択:",
+      "判定",
+      "情報収集",
+      "Eロイス",
+      "戦闘",
+    ]);
     expect(html).toContain('data-check-mandatory="true"');
     expect(html).toContain('<pre>');
     expect(html).toContain('<code class="language-text">');
@@ -122,10 +132,10 @@ describe("semantic HTML renderer", () => {
       'data-section-id="section-html-escape-01"',
       'data-section-id="section-html-escape-02"',
     ]);
-    expect(result.html.match(/aria-labelledby="([^"]+)"/g)?.every((value) => {
-      const id = value.slice('aria-labelledby="'.length, -1);
-      return result.html.includes(`id="${id}"`);
-    })).toBe(true);
+    const ids = new Set([...result.html.matchAll(/id="([^"]+)"/g)].map(([, id]) => id));
+    const ariaReferences = [...result.html.matchAll(/aria-labelledby="([^"]+)"/g)]
+      .flatMap(([, references]) => (references ?? "").split(/\s+/u));
+    expect(ariaReferences.every((id) => id.length > 0 && ids.has(id))).toBe(true);
   });
 
   it("resolves standard Markdown reference links and images from the AST definitions", () => {
@@ -175,6 +185,16 @@ describe("semantic HTML renderer", () => {
     expect(html).toContain('data-combo-id="afterglow-chain"');
     expect(html).toContain('id="enemy-gray-experiment"');
     expect(html).toContain('id="combo-gray-experiment-afterglow-chain"');
+    const comboMarkup = html.match(/<article class="combo-data"[\s\S]*?<\/article>/)?.[0];
+    expect(comboMarkup).toBeDefined();
+    if (comboMarkup) {
+      expect(comboMarkup).toMatch(/<span id="([^"]+)" class="combo-data__kind-label" data-region="combo-kind">\s*コンボ\s*<\/span>/);
+      const comboKindLabelId = comboMarkup.match(/<span id="([^"]+)" class="combo-data__kind-label"/)?.[1];
+      const comboTitleId = comboMarkup.match(/<h\d id="([^"]+)" class="combo-data__title"/)?.[1];
+      expect(comboKindLabelId).toBeDefined();
+      expect(comboTitleId).toBeDefined();
+      expect(comboMarkup).toContain(`aria-labelledby="${comboKindLabelId} ${comboTitleId}"`);
+    }
     expect(html).toContain('data-entry-id="body"');
     expect(html).toContain('data-entry-id="sense"');
     expect(html.indexOf('data-entry-id="body"')).toBeLessThan(html.indexOf('data-entry-id="sense"'));

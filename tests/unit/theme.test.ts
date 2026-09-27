@@ -77,7 +77,7 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(css).not.toContain("@bottom-left");
     expect(css).not.toContain("@bottom-right");
     expect(css).toContain("counter(page)");
-    expect(css).toContain("content: string(document-id)");
+    expect(css).toContain('content: string(document-id) ": " string(document-title)');
     expect(css).toContain("writing-mode: vertical-rl");
     expect(css).toContain("text-orientation: sideways");
     expect(css).toContain("--font-body: \"Noto Sans JP\"");
@@ -91,8 +91,14 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(css).toContain("string-set: document-title content(text)");
     expect(css).toContain("string-set: section-title content(text)");
     expect(css).toContain("string-set: document-id attr(data-document-id)");
-    expect(css).toContain("line-break: strict");
-    expect(css).toContain("[data-enemy-id]");
+    expect(css).not.toContain("line-break: strict");
+    expect(css).toContain("box-sizing: border-box");
+    expect(css).toContain("box-sizing: content-box");
+    expect(css).toContain(".scenario-block__kind-label,\n.combo-data__kind-label {\n  box-sizing: content-box;");
+    expect(css).not.toContain("*::before");
+    expect(css).not.toContain("*::after");
+    expect(css).not.toContain("page-break-inside");
+    expect(css).toContain(".data-fields__item > dd");
     expect(css).toContain("orphans: 1");
     expect(css).toContain("widows: 1");
     expect(css).not.toMatch(/^\s*text-spacing\s*:/mu);
@@ -136,6 +142,7 @@ describe("scenario A5 Vivliostyle Theme", () => {
       ".document-figure",
       ".scenario-block",
       ".scenario-block__header",
+      ".scenario-block__kind-label",
       ".scenario-block__title",
       ".scenario-block__body",
       ".field-list",
@@ -152,9 +159,9 @@ describe("scenario A5 Vivliostyle Theme", () => {
       ".data-list",
       ".data-list__item",
       ".data-list__item-title",
-      ".data-reference-list[data-region=\"effect-references\"]",
-      ".data-reference-list[data-region=\"item-references\"]",
+      ".data-reference-list",
       ".combo-data",
+      ".combo-data__kind-label",
       ".combo-data__title",
       "table",
       "blockquote",
@@ -177,14 +184,7 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(css).toContain("background: #eee");
     expect(css).toContain("background: #fff");
     expect(css).toContain("border: 2px solid #999");
-    expect(css).toContain('content: "セリフ:"');
-    expect(css).toContain('content: "ロールプレイ:"');
-    expect(css).toContain('content: "選択:"');
-    expect(css).toContain('content: "判定"');
-    expect(css).toContain('content: "情報収集"');
-    expect(css).toContain('content: "Eロイス"');
-    expect(css).toContain('content: "戦闘"');
-    expect(css).toContain('content: "コンボ"');
+    expect(css).not.toMatch(/content:\s*"(?:セリフ:|ロールプレイ:|選択:|判定|情報収集|Eロイス|戦闘|コンボ)"/u);
     expect(css).toContain(".scenario-block--battle:has(.structured-data--enemy)");
     expect(css).toContain("min-block-size: 24Q");
     expect(css).toContain("margin-block-end: 8Q");
@@ -213,13 +213,11 @@ describe("scenario A5 Vivliostyle Theme", () => {
     expect(css).toContain(".data-fields__item > dd");
   });
 
-  it("names every structured-data section and protects lists, rows, and panels at page breaks", () => {
+  it("keeps structured-data page safety local to indivisible rows and headings", () => {
     const css = readThemeFile("theme.css");
-    for (const section of ["basic", "abilities", "effects", "items", "lois", "d-lois", "e-lois", "combos"]) {
-      expectSelector(css, `.structured-data__section[data-data-section=\"${section}\"]`);
-    }
+    expectSelector(css, ".structured-data__section");
     expect(css).toContain("break-inside: avoid-page");
-    expect(css).toContain("page-break-inside: avoid");
+    expect(css).not.toContain("page-break-inside: avoid");
     expect(css).toContain("display: table-header-group");
     expect(css).toContain("break-inside: avoid;");
     expect(css).toContain("word-break: break-word");

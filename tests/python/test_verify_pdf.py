@@ -34,6 +34,10 @@ class VerifyPdfTextComparisonTests(unittest.TestCase):
         self.assertEqual(VERIFY_PDF.find_missing_titles("G ift from  God", ["Gift from God"]), [])
         self.assertEqual(VERIFY_PDF.find_missing_titles("G ilt from  God", ["Gift from God"]), ["Gift from God"])
 
+    def test_title_matching_preserves_expected_word_boundaries(self) -> None:
+        self.assertEqual(VERIFY_PDF.find_missing_titles("GiftfromGod", ["Gift from God"]), ["Gift from God"])
+        self.assertEqual(VERIFY_PDF.find_missing_titles("Gift   from\nGod", ["Gift from God"]), [])
+
     def test_xml_error_marker_detection_survives_normalized_text(self) -> None:
         text = "\u2fac\u2fb3\nThis page contains the following errors:\nStart tag expected"
         self.assertEqual(

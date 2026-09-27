@@ -2,7 +2,7 @@
 
 ## 目的と境界
 
-旧Theme gift/themes/vivliostyle-theme-dx3rd-ammonite/main.css の視覚仕様を、現行の意味的HTML契約 dx3rd-scenario/v1 に対応づける。原則は「旧HTMLのクラスを復活させず、対応する見た目の値を移す」。通常の本文・表・敵データ・専用ブロックの意味は現行契約に残し、CSSが表示上のラベルや形を補う。
+旧Theme gift/themes/vivliostyle-theme-dx3rd-ammonite/main.css の視覚仕様を、現行の意味的HTML契約 dx3rd-scenario/v1 に対応づける。原則は「旧HTMLのクラスを復活させず、対応する見た目の値を移す」。通常の本文・表・敵データ・専用ブロックの意味と可視ラベルは現行HTML契約に残し、CSSは位置・形・装飾を担う。
 
 ステータスは KEEP（値を維持）、TRANSLATE（現行契約のselectorやCSS表現へ移す）、DEFER（必要な資産・判断が揃うまで保留）、DROP（移植しない。理由を併記）を表す。
 
@@ -13,10 +13,10 @@
 | @charset "UTF-8" | CSSはUTF-8で保存し、HTML側もmeta charset=utf-8を出力 | DROP | CSSの文字コード宣言はファイル先頭のBOM等に制限がある旧構文で、現在の出力に表示上の役割はない。 |
 | Google FontsのNoto Sans JP / Noto Serif JP @import | --font-body / --font-displayに旧ファミリー名を先頭指定し、一般的な日本語フォントへフォールバック | DEFER | ネットワーク資源をThemeから取得しない方針を維持する。フォントファイルの配布・ライセンス・埋め込み方針が決まるまでバイナリ導入をしない。 |
 | Material Symbols @import | 専用ブロック見出しの先頭24Qをアイコン用に確保。画像や記号で代用しない | DEFER | 旧アイコンを再現するフォント資産がなく、ネットワーク取得も行わない。 |
-| * { margin:0; padding:0; box-sizing:border-box } | box-sizing:border-boxを全要素・疑似要素へ適用。余白・paddingは意味的な各要素で個別に指定 | TRANSLATE | 全要素の余白を一括リセットすると標準Markdown構造の可読性を損なうため、旧値が必要な対象だけ明示する。 |
+| * { margin:0; padding:0; box-sizing:border-box } | DOM要素へbox-sizing:border-box。白枠などCSS専用疑似要素には局所指定、実ラベルには旧疑似要素と同じ寸法になるようcontent-box | TRANSLATE | 旧CSSのグローバル指定は疑似要素まで届かない。旧値が必要な疑似要素・ラベルだけ個別に指定し、余白リセットは標準Markdownの既定表示を壊すため移植しない。 |
 | @page: A5、block/inline各14mm、白背景 | A5 portrait、margin 14mm、background-color #fff | KEEP | A5を基準とする。A4入口は別の@pageで上書きする。 |
 | @bottom-center: page counter、16Q、開始側4mm | 同じページ領域・counter(page)・寸法 | KEEP | 追加のフォント指定はせず、本文書体を継承する。 |
-| @page :right @right-middle: string(section-id)、vertical-rl、sideways、top | 現行のdocument-id文字列を同じ側柱へ表示 | TRANSLATE | 旧値は章扉のsection-id（op1ではOP-01）。現行のmain.documentにあるdata-document-idを使用し、見出し本文は表示しない。 |
+| @page :right @right-middle: string(section-id)、vertical-rl、sideways、top | 現行のdocument-idとdocument-titleを「ID: タイトル」形式で同じ側柱へ表示 | TRANSLATE | 旧値は章扉のsection-id（op1ではOP-01）。現行のmain.documentにあるdata-document-idとH1由来の文書タイトルを組み合わせ、ページを開いたまま識別できるようにする。 |
 | :root: 16Q / 28Q / Noto Sans JP / 400 / justify / widows1 / orphans1 | bodyへ16Q、28Q、400、justify、widows1、orphans1 | TRANSLATE | semantic HTMLのbodyを組版既定値の入口にする。 |
 | text-spacing: allow-end | text-spacing-trim: normalとtext-autospace: no-autospace | TRANSLATE | 現行Vivliostyle Coreが公開するCSS Text 4のlonghandへ近似変換する。旧値と完全同義ではない。 |
 | hanging-punctuation: allow-end | 同じ値を文書ルートへ指定 | KEEP | 行末約物を必要に応じてぶら下げる指定を維持する。 |
@@ -41,14 +41,14 @@
 | .desc-list-item-value: margin-start 8Q、padding-block 0、16Q/24Q | 対応するdd | KEEP | 値は16Q/24Qで表示する。 |
 | .serif,.rp,.select: break-inside avoid、margin 16Q、padding 8Q、#eee | dialogue / roleplay / choiceの.scenario-block | TRANSLATE | 三種の意味的blockへ同じ旧パネル値を適用。 |
 | 三種のh4: flex、margin-top 0 / bottom 8Q、padding-bottom 4Q、height 24Q、line 20Q、font 16Q、center、700、bottom 2px dotted #999 | .scenario-block__headerと.scenario-block__title | TRANSLATE | 見出しを通常24Qのflex行、下余白8Qとして移す。長い見出しのみ24Q以上へ伸ばして文字の欠けを防ぐ。 |
-| 三種h4 ::before: margin-start 24Q / end 4Q | dialogue / roleplay / choiceの生成ラベル | TRANSLATE | 24Qをアイコン用に確保し、ラベルをCSSで表示。 |
-| .serif/.rp/.select h4::before: セリフ:/ロールプレイ:/選択: | 各data-block-kindのタイトル疑似要素 | TRANSLATE | 入力Markdownに属性やラベルを書き足さない。 |
+| 三種h4 ::before: margin-start 24Q / end 4Q | dialogue / roleplay / choiceのDOMラベル | TRANSLATE | 24Qをアイコン用に確保し、ラベル自体はrendererが通常テキストとして出力する。 |
+| .serif/.rp/.select h4::before: セリフ:/ロールプレイ:/選択: | scenario-block__kind-labelのテキスト | TRANSLATE | data-block-kindから決定するアクセシブルなDOMテキスト。入力Markdownに属性やラベルを書き足さず、CSS生成contentにも依存しない。 |
 | 三種h4 ::after: Material Symbols、20Q、absolute、700、sms/voice_selection/arrow_split | タイトル先頭24Qを予約 | DEFER | アイコンフォント導入判断待ち。Unicode記号や仮画像に置換しない。 |
 | 三種の本文段落: padding-inline 8Q | .scenario-blockの内側padding 8Q | TRANSLATE | 二重paddingを避けるため段落個別paddingは移さない。 |
 | .serif p: indent 0 | dialogueの本文段落 | TRANSLATE | roleplay/choiceの1em字下げは維持する。 |
-| .check,.info,.e-lois,.battle,.combo: avoid、relative、margin 16Q、padding-block 24Q 8Q / inline 8Q、border 2px solid #999 | 4種の情報blockおよび.combo-data | TRANSLATE | コンボは本文blockにせず、YAML由来構造データとして枠の視覚値だけ対応。 |
-| 5種の::before: absolute、flex-center、top/left -2px、padding-inline 24Q、height/line 20Q、12Q、#999/white、700、min-width 30mm | check/info/e-lois/battle blockと.combo-dataの見出し帯 | TRANSLATE | 論理プロパティへ移す。24Qは保留アイコンの領域を含む。 |
-| 各ラベル: 判定 / 情報収集 / Eロイス / 戦闘 / コンボ | 同じ種類のCSS生成ラベル | TRANSLATE | コンボラベルは.combo-dataにのみ適用。 |
+| .check,.info,.e-lois,.battle,.combo: avoid、relative、margin 16Q、padding-block 24Q 8Q / inline 8Q、border 2px solid #999 | 4種の情報blockおよび.combo-data | TRANSLATE | コンボは本文blockにせず、YAML由来構造データとして枠の視覚値だけ対応。コンボは旧指定どおり分割を避ける。 |
+| 5種の::before: absolute、flex-center、top/left -2px、padding-inline 24Q、height/line 20Q、12Q、#999/white、700、min-width 30mm | check/info/e-lois/battleのscenario-block__kind-labelとcombo-data__kind-label | TRANSLATE | 論理プロパティへ移す。実DOMラベルのbox-sizingはcontent-boxとし、30mmの最小内容幅と左右24Qのpaddingを旧疑似要素と同じ外寸にする。24Qは保留アイコンの領域を含む。 |
+| 各ラベル: 判定 / 情報収集 / Eロイス / 戦闘 / コンボ | scenario-block__kind-label / combo-data__kind-labelの通常テキスト | TRANSLATE | rendererがdata-block-kindまたはYAML由来コンボからDOMへ出力し、CSSは位置と外観だけを整える。 |
 | 5種の::after: Material Symbols、absolute、top/left -2px、padding-inline 8Q、height/line 20Q、14Q、white、700、casino/search/visibility/swords | アイコン位置を帯の先頭24Qに確保 | DEFER | バイナリ資産未決定。戦闘/コンボは旧CSSで同じswords。 |
 | .check/.info/.e-lois/.battle/.combo h4: margin-top 0、下2px dotted #999 | 同block見出しと.combo-data__title | TRANSLATE | 現行HTML見出しの実タグに依存させず、semantic classで値を設定。 |
 | .trailer p: margin 16Q、indent 0、center | 該当する現在のHTML semantic hookなし | DROP | trailer専用のMarkdown/HTML意味構造を追加せず、任意の通常段落を推測で特別扱いしない。 |
@@ -76,6 +76,6 @@
 
 ## 現行HTMLにのみある拡張
 
-引用、コードブロック、figureのcaption、テーブルのthead/tfoot、長い機械IDの折返し、ページ分割安全策には旧CSSの対応ルールがない。意味的HTMLを読める形に保つ最小限の見た目と安全策として維持し、通常段落や通常表の旧値を変えないよう局所化する。
+引用、コードブロック、figureのcaption、テーブルのthead/tfoot、ページ分割安全策には旧CSSの対応ルールがない。ページ分割指定は、figureと目次の単一行、構造化データの見出しと直後の内容、フィールド行・表行、コンボ枠、敵シート前の明示改ページに限定する。通常見出し、通常段落、引用、コードブロックには改ページ回避を追加しない。overflow-wrapはフィールドのdt/ddとコードに局所適用し、data属性から通常本文へ継承させない。
 
 比較用入力と設定は[visual fixtureの説明](../tests/fixtures/README.md#gift-op1-visual-parity)を参照。

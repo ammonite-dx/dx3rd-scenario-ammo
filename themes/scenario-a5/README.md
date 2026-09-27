@@ -8,8 +8,8 @@ rewriting workflow.
 ## Entries
 
 - `theme.css`: A5 portrait, 14 mm margins on all sides, no bleed, page number
-  centered at the bottom (16Q with a 4 mm start margin), and the section name
-  document ID vertically set in the right-side page margin. Body text uses 16Q/28Q Japanese
+  centered at the bottom (16Q with a 4 mm start margin), and the document ID
+  plus title vertically set in the right-side page margin. Body text uses 16Q/28Q Japanese
   typography; major section headings, panels, fields, tables, and links follow
   the documented gift port map.
 - `theme-a4.css`: optional A4 portrait entry with 18 mm margins. It imports the
